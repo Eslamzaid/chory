@@ -13,15 +13,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(morgan("tiny"));
 
+const oneDay = 1000 * 60 * 60 * 24;
+
 app.use(
   session({
     secret: `${process.env.SECRET_SESSION_KEY}`,
     resave: false,
     saveUninitialized: true,
+    cookie: { maxAge: oneDay },
   })
 );
 
-app.use("/", firstR);
+app.use("/api", firstR);
+
+app.get("/", (req, res) => {
+  if (req.session.user_id) {
+    res.redirect("home");
+  } else {
+    res.redirect("/api");
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Listing on ${PORT}`);
