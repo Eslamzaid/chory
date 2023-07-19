@@ -2,7 +2,6 @@ const isAuth = (req, res, next) => {
   if (!req.session.user_id) {
     res.status(401).json({
       success: false,
-      mes: "Not authenticated",
     });
   } else {
     res.status(200).json({
