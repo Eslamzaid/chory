@@ -23,9 +23,12 @@ app.use(
   })
 );
 
+
+
 app.use("/api", firstR);
 
 app.get("/", (req, res) => {
+  console.log(req.session.user_id)
   if (req.session.user_id) {
     res.redirect("/home");
   } else {

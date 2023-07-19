@@ -5,15 +5,30 @@ import thmUps from "../../assets/thmUps.png";
 function LoginA() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const signIn = (e) => {
-    const sendD = fetch("http:")
+  //TODO the user authentication with session
+
+  const signIn = async (e) => {
+    alert("it work");
+    e.preventDefault();
+    const response = await fetch("http://localhost:4000/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    const result = await response.json();
+    console.log(result);
   };
 
-  let errorMsg = ""
-
+  let errorMsg = "";
 
   let dis = false;
-  if ((email.length !== 0 && password.length > 5) && (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))) {
+  if (
+    email.length !== 0 &&
+    password.length > 5 &&
+    /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)
+  ) {
     dis = true;
   } else {
     dis = false;
@@ -92,11 +107,10 @@ function LoginA() {
               </div>
               <button
                 className={`sm:w-[21.3rem] w-8/12 rounded-lg border-2 border-stone-600 py-3 hover:bg-[#eeeff0] ${
-                  dis ? "cursor-pointer" : "opacity-50 cursor-auto"
+                  !dis ? "opacity-50 cursor-auto" : "cursor-pointer"
                 }`}
                 type="submit"
-                disabled={dis}
-                // onClick={notify2}
+                disabled={!dis}
               >
                 Log in
               </button>

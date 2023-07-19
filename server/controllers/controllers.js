@@ -3,13 +3,14 @@ const validator = require("validator");
 const pool = require("../database");
 
 const isAuth = (req, res, next) => {
+  console.log(req.session.user_id);
   if (!req.session.user_id) {
-    res.status(401).json({
-      success: false,
-    });
-  } else {
     res.status(200).json({
       success: true,
+    });
+  } else {
+    res.status(401).json({
+      success: false,
     });
   }
 };
@@ -17,6 +18,7 @@ const isAuth = (req, res, next) => {
 const backUser = (req, res, next) => {
   res.json({
     hi: "Hello from express",
+    id: `${req.session.user_id}`,
   });
 };
 
@@ -39,8 +41,18 @@ const addUser = (req, res) => {
         return;
       }
       if (await validator.isLength(password, { min: 8, max: undefined })) {
-        pool.query(quires.AddUser, [email, password]);
-        res.status(201).json({ message: "User created successfully" });
+        pool.query(quires.AddUser, [email, password], (err, resulting) => {
+          if (err) throw err;
+          pool.query(quires.userId, [email], (err, fin) => {
+            if (err) throw err;
+            req.session.user_id = fin.rows[0].user_id;
+            req.session.save(function (err) {
+              if (err) return next(err);
+              res.status(200).json({});
+            });
+            return;
+          });
+        });
       }
     } else {
       res.status(400).json({ message: "incorrect email" });
