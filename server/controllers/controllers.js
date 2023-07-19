@@ -2,6 +2,8 @@ const quires = require("../queires/queires");
 const validator = require("validator");
 const pool = require("../database");
 
+//! Before
+
 const isAuth = (req, res, next) => {
   console.log(req.session.user_id);
   if (!req.session.user_id) {
@@ -15,11 +17,36 @@ const isAuth = (req, res, next) => {
   }
 };
 
-const backUser = (req, res, next) => {
-  res.json({
-    hi: "Hello from express",
-    id: `${req.session.user_id}`,
-  });
+const backUser = async (req, res) => {
+  const { email, password } = req.body;
+  if (
+    email == null ||
+    password == null ||
+    email.length == 0 ||
+    password.length == 0
+  ) {
+    res.status(400).json({ message: "Email or password missing" });
+    return;
+  } else if (
+    (await validator.isEmail(email)) &&
+    (await validator.isLength(password, { min: 8, max: undefined }))
+  ) {
+    pool.query(quires.getUserLogin, [email, password], (err, result) => {
+      if (err) throw err;
+      if (result.rowCount == 0) {
+        res.status(404).json({ message: "Something is wrong", success: false });
+        return;
+      }
+      pool.query(quires.userId, [email], (err, fin) => {
+        if (err) throw err;
+        console.log(fin.rows);
+        res
+          .status(200)
+          .json({ message: "user created successfully", success: true });
+        return;
+      });
+    });
+  }
 };
 
 const addUser = (req, res) => {
@@ -61,8 +88,12 @@ const addUser = (req, res) => {
   });
 };
 
+//! After
+const checkPerm = (req, res) => {};
+
 module.exports = {
   isAuth,
   backUser,
   addUser,
+  checkPerm,
 };

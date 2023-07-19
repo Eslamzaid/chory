@@ -4,7 +4,7 @@ const session = require("express-session");
 const morgan = require("morgan");
 const app = express();
 const PORT = 4000;
-const firstR = require("./routes/routes");
+const { firCon, secCon } = require("./routes/routes");
 require("dotenv").config();
 
 app.use(cors());
@@ -23,12 +23,11 @@ app.use(
   })
 );
 
-
-
-app.use("/api", firstR);
+app.use("/api", firCon);
+app.use("/home", secCon);
 
 app.get("/", (req, res) => {
-  console.log(req.session.user_id)
+  console.log(req.session.user_id);
   if (req.session.user_id) {
     res.redirect("/home");
   } else {

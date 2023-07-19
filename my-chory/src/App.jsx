@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { checkIsAuth } from "./utls/func";
-import LoginA from "./components/notLoged/LoginA";
-import LoadingP from "./components/notLoged/LoadingP"
+import LoadingP from "./components/notLoged/LoadingP";
+import { useNavigate } from "react-router-dom";
 
 function App() {
   const [auth, setAuth] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate("");
+  console.log(auth);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -16,14 +18,16 @@ function App() {
     fetchData();
   }, []);
 
+  console.log(auth);
   return (
     <>
       {loading ? (
         <LoadingP />
       ) : auth ? (
-        "chatting"
+        // "chatting"
+        navigate("/login")
       ) : (
-        <LoginA />
+        navigate("/login")
       )}
     </>
   );

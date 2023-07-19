@@ -1,14 +1,16 @@
 import { useState } from "react";
 import logo from "../../assets/logo.png";
 import thmUps from "../../assets/thmUps.png";
+import { useNavigate } from "react-router-dom";
 
 function LoginA() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [mes, setMessage] = useState("");
   //TODO the user authentication with session
+  const navigate = useNavigate("");
 
   const signIn = async (e) => {
-    alert("it work");
     e.preventDefault();
     const response = await fetch("http://localhost:4000/api/login", {
       method: "POST",
@@ -18,10 +20,14 @@ function LoginA() {
       body: JSON.stringify({ email, password }),
     });
     const result = await response.json();
-    console.log(result);
+    if ((await result.success) == true) {
+      navigate("/home");
+    } else {
+      setEmail("");
+      setPassword("");
+      setMessage(await result.message);
+    }
   };
-
-  let errorMsg = "";
 
   let dis = false;
   if (
@@ -69,6 +75,7 @@ function LoginA() {
                   type="email"
                   id="email"
                   name="email"
+                  autoComplete="username"
                   placeholder="Email"
                   className="peer shadow-md sm:w-[21.3rem] h-12 focus:outline-2 focus:outline-stone-500 focus:outline-offset-4 
                             focus:ring-none placeholder-transparent  focus:ring-0  mb-5 w-8/12 rounded-lg px-2"
@@ -90,6 +97,7 @@ function LoginA() {
                   type="password"
                   id="password"
                   name="password"
+                  autoComplete="current-password"
                   placeholder="Password"
                   className="peer shadow-md sm:w-[21.3rem] h-12 focus:outline-2 focus:outline-stone-500 focus:outline-offset-4 
                   focus:ring-none placeholder-transparent  focus:ring-0  mb-5 w-8/12 rounded-lg px-2"
@@ -114,7 +122,7 @@ function LoginA() {
               >
                 Log in
               </button>
-              <p className="text-red-600 font-medium text-sm">{errorMsg}</p>
+              <p className="text-red-600 font-medium text-sm">{mes}</p>
             </form>
           </section>
         </article>
