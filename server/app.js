@@ -4,7 +4,6 @@ const session = require("express-session");
 const morgan = require("morgan");
 const app = express();
 const PORT = 4000;
-const pool = require("./database");
 const firstR = require("./routes/routes");
 require("dotenv").config();
 

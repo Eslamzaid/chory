@@ -1,5 +1,5 @@
 // const defaultTheme = require('tailwindcss/defaultTheme');
-import defaultTheme from "tailwindcss/defaultTheme"
+import defaultTheme from "tailwindcss/defaultTheme";
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        snsn: ['"Open Sans"', ...defaultTheme.fontFamily.sans],
+        snsn: ['"Inter"', ...defaultTheme.fontFamily.sans],
       },
     },
   },
