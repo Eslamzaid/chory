@@ -7,7 +7,6 @@ function LoginA() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mes, setMessage] = useState("");
-  //TODO the user authentication with session
   const navigate = useNavigate("");
 
   const signIn = async (e) => {

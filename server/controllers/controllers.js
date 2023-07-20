@@ -6,7 +6,7 @@ const pool = require("../database");
 
 const isAuth = (req, res, next) => {
   console.log(req.session.user_id);
-  if (!req.session.user_id) {
+  if (req.session.user_id) {
     res.status(200).json({
       success: true,
     });

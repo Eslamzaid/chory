@@ -7,7 +7,6 @@ function App() {
   const [auth, setAuth] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate("");
-  console.log(auth);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,7 +23,6 @@ function App() {
       {loading ? (
         <LoadingP />
       ) : auth ? (
-        // "chatting"
         navigate("/login")
       ) : (
         navigate("/login")
