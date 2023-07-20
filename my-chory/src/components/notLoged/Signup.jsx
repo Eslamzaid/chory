@@ -4,6 +4,12 @@ import lessThan from "../../assets/lessThan.png";
 import { useNavigate } from "react-router-dom";
 
 function Signup() {
+  const navigate = useNavigate("");
+
+  if (typeof parseInt(localStorage.getItem("user_id")) == "number") {
+    navigate("/home");
+  }
+
   const [name, setName] = useState("");
   const [username, setUserName] = useState("");
   const [phone, setPhone] = useState("");
@@ -12,7 +18,6 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [state, setState] = useState(false);
   const [mes, setMes] = useState("");
-  const navigate = useNavigate("");
   const checkTrue = () => {
     const fields = [
       { name: "Name", value: name, minLength: 2, maxLength: 20 },
@@ -26,7 +31,7 @@ function Signup() {
       setMes("Phone number should be a NUMBER");
       return;
     }
-    if(phone.length > 10) {
+    if (phone.length > 10) {
       setMes("Phone number should not be more than 10 numbers");
       return;
     }
@@ -75,7 +80,8 @@ function Signup() {
       setMes(data.message);
     } else if (data.success == true) {
       setMes(data.message);
-      navigate("/home")
+      localStorage.setItem("user_id", data.user_id);
+      navigate("/home");
     }
   };
 

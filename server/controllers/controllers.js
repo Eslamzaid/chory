@@ -107,9 +107,11 @@ const addUser = async (req, res) => {
           if (err) throw err;
           const { rows } = await pool.query(quires.userId, [email]);
           req.session.user_id = rows[0].user_id;
-          res
-            .status(201)
-            .json({ message: "User created successfully!", success: true });
+          res.status(201).json({
+            message: "User created successfully!",
+            success: true,
+            user_id: rows[0].user_id,
+          });
           return;
         }
       );

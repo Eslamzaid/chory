@@ -19,7 +19,7 @@ app.use(
     secret: `${process.env.SECRET_SESSION_KEY}`,
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: oneDay, secure: true },
+    cookie: { maxAge: oneDay },
   })
 );
 
