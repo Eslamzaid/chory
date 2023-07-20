@@ -10,6 +10,7 @@ const isAuth = async (req, res, next) => {
       success: true,
     });
   } else {
+    console.log(req.session)
     res.status(401).json({
       success: false,
     });

@@ -5,6 +5,8 @@ const morgan = require("morgan");
 const app = express();
 const PORT = 4000;
 const { firCon, secCon } = require("./routes/routes");
+const server = require("http").createServer(app); // Create http server
+const io = require("socket.io")(server); // Attach Socket.IO to the server
 require("dotenv").config();
 
 app.use(cors());
@@ -34,6 +36,10 @@ app.get("/", (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Listing on ${PORT}`);
+io.on("connection", (socket) => {
+  console.log("a user connected");
+});
+
+server.listen(PORT, () => {
+  console.log(`Listening on ${PORT}`);
 });
