@@ -7,7 +7,7 @@ const secCon = router;
 firCon.get("/", controller.isAuth);
 firCon.get("/login", controller.backUser);
 firCon.post("/login", controller.backUser);
-firCon.post("/singUp", controller.addUser);
+firCon.post("/signUp", controller.addUser);
 
 //! after authentication
 secCon.get("/", controller.checkPerm);

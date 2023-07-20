@@ -23,7 +23,7 @@ function App() {
       {loading ? (
         <LoadingP />
       ) : auth ? (
-        navigate("/login")
+        navigate("/home")
       ) : (
         navigate("/login")
       )}

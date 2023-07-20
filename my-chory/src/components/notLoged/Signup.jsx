@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import logo from "../../assets/logo.png";
 import lessThan from "../../assets/lessThan.png";
-import { checkIsAuth } from "../../utls/func";
+import { useNavigate } from "react-router-dom";
 
 function Signup() {
   const [name, setName] = useState("");
@@ -12,44 +12,68 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [state, setState] = useState(false);
   const [mes, setMes] = useState("");
-
+  const navigate = useNavigate("");
   const checkTrue = () => {
-    if (name.length < 2 && name.length !== 0) {
-      setMes("Name is too short (it should be at least 2 characters)");
-    } else if (name.length === 0) {
-      setMes("Name is missing");
-    } else if (username.length < 4 && username.length !== 0) {
-      setMes("Username is too short (it should be at least 4 characters)");
-    } else if (username.length === 0) {
-      setMes("Username is missing");
-    } else if (phone.length < 7 && phone.length !== 0) {
-      setMes("Phone number is too short (it should be at least 7 characters)");
-    } else if (phone.length === 0) {
-      setMes("Phone number is missing");
-    } else if (bio.length === 0) {
-      setMes("Bio is missing");
-    } else if (bio.length < 15) {
-      setMes(
-        "Bio should be at most 200 or at least 15 characters ( you just typed " +
-          bio.length +
-          " characters )"
-      );
-    } else if (!email.includes("@") || email.length < 5) {
-      setMes("Invalid email address");
-    } else if (password.length === 0) {
-      setMes("Password is missing");
-    } else if (password.length < 6 && password.length !== 0) {
-      setMes("Password is too short (it should be at least 6 characters)");
-    } else {
-      setMes("");
-      setState(true);
-      // All checks pass, you can proceed with the registration logic here.
-      // For example, you can submit the form or call an API to save the data.
+    const fields = [
+      { name: "Name", value: name, minLength: 2, maxLength: 20 },
+      { name: "Username", value: username, minLength: 4, maxLength: 20 },
+      { name: "Phone number", value: phone, minLength: 7 },
+      { name: "Bio", value: bio, minLength: 15, maxLength: 200 },
+      { name: "Email", value: email, minLength: 5 },
+      { name: "Password", value: password, minLength: 6 },
+    ];
+
+    for (const field of fields) {
+      if (field.value.length === 0) {
+        setMes(`${field.name} is missing`);
+        return;
+      }
+      if (field.value.length < field.minLength) {
+        setMes(
+          `${field.name} is too short (it should be at least ${field.minLength} characters)`
+        );
+        return;
+      }
+      if (field.maxLength && field.value.length > field.maxLength) {
+        setMes(
+          `${field.name} is too long, it should not be more than ${field.maxLength} characters`
+        );
+        return;
+      }
     }
+
+    if (!email.includes("@")) {
+      setMes("Invalid email address");
+      return;
+    }
+
+    if (!/^\d+$/.test(phone)) {
+      setMes("Phone number should be a NUMBER");
+      return;
+    }
+
+    setMes("");
+    setState(true);
+    // All checks pass, you can proceed with the registration logic here.
+    // For example, you can submit the form or call an API to save the data.
   };
 
-  const submitForm = (e) => {
+  const submitForm = async (e) => {
     e.preventDefault();
+    const response = await fetch("http://localhost:4000/api/signUp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password, name, username, phone, bio }),
+    });
+    const data = await response.json();
+    if (data.success == false) {
+      setMes(data.message);
+    } else if (data.success == true) {
+      setMes(data.message);
+      navigate("/home");
+    }
   };
 
   return (
@@ -214,7 +238,7 @@ function Signup() {
               </div>
             </div>
           </div>
-          <div className="flex justify-center">
+          <div className="flex flex-col justify-center items-center">
             <button
               className={`w-10/12 mt-10 rounded-lg border-2 border-stone-600 py-3 hover:bg-[#eeeff0] ${"cursor-pointer"}`}
               type={state ? "submit" : "button"}
