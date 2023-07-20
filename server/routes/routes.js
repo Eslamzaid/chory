@@ -1,7 +1,7 @@
-const router = require("express").Router();
+const { Router } = require("express");
 const controller = require("../controllers/controllers");
-const firCon = router;
-const secCon = router;
+const firCon = Router();
+const secCon = Router();
 
 //! before authentication
 firCon.get("/", controller.isAuth);

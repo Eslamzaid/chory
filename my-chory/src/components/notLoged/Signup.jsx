@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import logo from "../../assets/logo.png";
 import lessThan from "../../assets/lessThan.png";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +22,14 @@ function Signup() {
       { name: "Email", value: email, minLength: 5 },
       { name: "Password", value: password, minLength: 6 },
     ];
+    if (!/^\d+$/.test(phone)) {
+      setMes("Phone number should be a NUMBER");
+      return;
+    }
+    if(phone.length > 10) {
+      setMes("Phone number should not be more than 10 numbers");
+      return;
+    }
 
     for (const field of fields) {
       if (field.value.length === 0) {
@@ -47,11 +55,6 @@ function Signup() {
       return;
     }
 
-    if (!/^\d+$/.test(phone)) {
-      setMes("Phone number should be a NUMBER");
-      return;
-    }
-
     setMes("");
     setState(true);
     // All checks pass, you can proceed with the registration logic here.
@@ -72,13 +75,13 @@ function Signup() {
       setMes(data.message);
     } else if (data.success == true) {
       setMes(data.message);
-      navigate("/home");
+      navigate("/home")
     }
   };
 
   return (
     <section className="m-8 font-snsn">
-      <nav className="">
+      <nav>
         <img src={logo} alt="Our logo" />
       </nav>
       <section className="flex flex-col items-center justify-center mt-10">
@@ -247,7 +250,7 @@ function Signup() {
             >
               Log in
             </button>
-            <p>{mes}</p>
+            <p className="text-red-400">{mes}</p>
           </div>
         </form>
       </section>

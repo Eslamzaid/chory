@@ -19,7 +19,7 @@ app.use(
     secret: `${process.env.SECRET_SESSION_KEY}`,
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: oneDay },
+    cookie: { maxAge: oneDay, secure: true },
   })
 );
 
@@ -27,7 +27,6 @@ app.use("/api", firCon);
 app.use("/home", secCon);
 
 app.get("/", (req, res) => {
-  console.log(req.session.user_id);
   if (req.session.user_id) {
     res.redirect("/home");
   } else {
