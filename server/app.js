@@ -8,31 +8,29 @@ const { Server } = require("socket.io");
 const { firCon, secCon } = require("./routes/routes");
 require("dotenv").config();
 
-const oneDay = 1000 * 60 * 60 * 24;
-
 app.use(express.json());
 app.use(
   cors({
     origin: "http://localhost:5173",
     methods: ["GET", "POST"],
     credentials: true,
-    })
+  })
 );
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("tiny"));
+const oneDay = 1000 * 60 * 60 * 24;
 app.use(
   session({
     secret: process.env.SECRET_SESSION_KEY,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: { maxAge: oneDay },
   })
 );
 
-
 app.get("/", async (req, res) => {
   if (await req.session.user_id) {
-    console.log(req.session)
+    console.log(req.session);
     res.json({ message: "Welcome", success: true });
   } else {
     console.log(req.session);
@@ -43,11 +41,10 @@ app.get("/", async (req, res) => {
 app.use("/api", firCon);
 app.use("/home", secCon);
 
-
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", 
+    origin: "http://localhost:5173",
     methods: ["GET", "POST"],
   },
 });
