@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 import { checkIsAuth } from "../../utls/func";
 import { useNavigate } from "react-router-dom";
+import ScrollToBottom from "react-scroll-to-bottom";
 
 const Chatting = () => {
   const navigate = useNavigate();
@@ -20,6 +21,8 @@ const Chatting = () => {
   const [username, setUsername] = useState("");
   const [room, setRoom] = useState("");
   const [currentMessage, setCurrentMessage] = useState("");
+  const [show, setShow] = useState(false);
+  const [messageList, setMessageList] = useState([]);
 
   const socket = io.connect("http://localhost:4000");
   // useEffect(() => {
@@ -54,6 +57,7 @@ const Chatting = () => {
   const joinRoom = () => {
     if (username !== "" && room != "") {
       socket.emit("join_room", room);
+      setShow(true);
     }
   };
 
@@ -70,52 +74,75 @@ const Chatting = () => {
       };
 
       await socket.emit("send_message", messageData);
+      setCurrentMessage("")
     }
   };
 
   useEffect(() => {
     socket.on("receive_message", (data) => {
-      console.log(data)
-    })
+      setMessageList((list) => [...list, data]);
+    });
   }, [socket]);
 
   return (
     <article>
-      <section>
-        {/* Will be modified */}
-        <h2>Join a Chat</h2>
-        <input
-          type="text"
-          placeholder="Eslam..."
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Room..."
-          value={room}
-          onChange={(e) => setRoom(e.target.value)}
-        />
-        <button onClick={joinRoom}>Join a room</button>
-      </section>
-      <section>
-        <div>
-          <p>Live Chat</p>
-        </div>
-        <div></div>
-        <div>
+      {!show ? (
+        <section>
+          <h2>Join a Chat</h2>
           <input
             type="text"
-            placeholder="Hey..."
-            value={currentMessage}
-            onChange={(e) => setCurrentMessage(e.target.value)}
+            placeholder="Eslam..."
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
-          <button className="bg-slate-300" onClick={sendMessage}>
-            &#9658;
-          </button>
-        </div>
-      </section>
-      <section></section>
+          <input
+            type="text"
+            placeholder="Room..."
+            value={room}
+            onChange={(e) => setRoom(e.target.value)}
+          />
+          <button onClick={joinRoom}>Join a room</button>
+        </section>
+      ) : (
+        <>
+          <section className="bg-red-400 w-96 h-96 overflow-y-hidden">
+            <ScrollToBottom className=" w-full h-full overflow-y-hidden overflow-x-hidden">
+              {messageList.map((ele, ind) => {
+                return (
+                  <div key={ind}>
+                    <div
+                      className={ele.author === username ? "" : "float-right"}
+                    >
+                      <h6>{ele.author}</h6>
+                      <h2>{ele.message}</h2>
+                    </div>
+                  </div>
+                );
+              })}
+            </ScrollToBottom>
+          </section>
+          <section>
+            <div>
+              <p>Live Chat</p>
+            </div>
+            <div></div>
+            <div>
+              <input
+                type="text"
+                placeholder="Hey..."
+                value={currentMessage}
+                onChange={(e) => setCurrentMessage(e.target.value)}
+                onKeyUp={(event) => {
+                  event.key == "Enter" && sendMessage();
+                }}
+              />
+              <button className="bg-slate-300" onClick={sendMessage}>
+                &#9658;
+              </button>
+            </div>
+          </section>
+        </>
+      )}
     </article>
   );
 };
