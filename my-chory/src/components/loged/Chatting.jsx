@@ -1,9 +1,22 @@
 import { useEffect } from "react";
 import io from "socket.io-client";
+import { checkIsAuth } from "../../utls/func";
+import { useNavigate } from "react-router-dom";
 
 const Chatting = () => {
-  const socket = io.connect("http://localhost:4000")
-  
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const checking = async () => {
+      const check = await checkIsAuth();
+      if (!check.success) {
+        navigate("/");
+      }
+    };
+
+    checking();
+  });
+  const socket = io.connect("http://localhost:4000");
   // useEffect(() => {
   //   // Connect to the Socket.IO server
   //   try {

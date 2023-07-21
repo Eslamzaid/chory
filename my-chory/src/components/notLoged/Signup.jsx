@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import logo from "../../assets/logo.png";
 import lessThan from "../../assets/lessThan.png";
 import { useNavigate } from "react-router-dom";
+import { checkIsAuth } from "../../utls/func";
 
 function Signup() {
   const navigate = useNavigate("");
@@ -14,6 +15,17 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [state, setState] = useState(false);
   const [mes, setMes] = useState("");
+
+  useEffect(() => {
+    const checking = async () => {
+      const check = await checkIsAuth();
+      if (check.success) {
+        navigate("/home");
+      }
+    };
+
+    checking();
+  });
   const checkTrue = () => {
     const fields = [
       { name: "Name", value: name, minLength: 2, maxLength: 20 },

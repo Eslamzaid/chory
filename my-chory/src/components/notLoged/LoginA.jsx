@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import logo from "../../assets/logo.png";
 import thmUps from "../../assets/thmUps.png";
 import { useNavigate } from "react-router-dom";
+import { checkIsAuth } from "../../utls/func";
 
 function LoginA() {
   const [email, setEmail] = useState("");
@@ -9,6 +10,16 @@ function LoginA() {
   const [mes, setMessage] = useState("");
   const navigate = useNavigate("");
 
+  useEffect(() => {
+    const checking = async () => {
+      const check = await checkIsAuth();
+      if (check.success) {
+        navigate("/home");
+      }
+    };
+
+    checking();
+  });
   const signIn = async (e) => {
     e.preventDefault();
     const response = await fetch("http://localhost:4000/api/login", {

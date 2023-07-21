@@ -10,9 +10,7 @@ function App() {
 
   useEffect(() => {
     const fetchData = async () => {
-      
       const data = await checkIsAuth();
-      console.log(data);
       setAuth(data.success);
       setLoading(false);
     };

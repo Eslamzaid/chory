@@ -30,10 +30,8 @@ app.use(
 
 app.get("/", async (req, res) => {
   if (await req.session.user_id) {
-    console.log(req.session);
     res.json({ message: "Welcome", success: true });
   } else {
-    console.log(req.session);
     res.json({ message: "Unauthenticated", success: false });
   }
 });
