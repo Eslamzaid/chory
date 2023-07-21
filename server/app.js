@@ -1,45 +1,64 @@
 const express = require("express");
-const cors = require("cors");
 const session = require("express-session");
+const cors = require("cors");
 const morgan = require("morgan");
 const app = express();
-const PORT = 4000;
+const http = require("http");
+const { Server } = require("socket.io");
 const { firCon, secCon } = require("./routes/routes");
-const server = require("http").createServer(app); // Create http server
-const io = require("socket.io")(server); // Attach Socket.IO to the server
 require("dotenv").config();
-
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(morgan("tiny"));
 
 const oneDay = 1000 * 60 * 60 * 24;
 
+app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true,
+    })
+);
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan("tiny"));
 app.use(
   session({
-    secret: `${process.env.SECRET_SESSION_KEY}`,
+    secret: process.env.SECRET_SESSION_KEY,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: { maxAge: oneDay },
   })
 );
 
-app.use("/api", firCon);
-app.use("/home", secCon);
 
-app.get("/", (req, res) => {
-  if (req.session.user_id) {
-    res.redirect("/home");
+app.get("/", async (req, res) => {
+  if (await req.session.user_id) {
+    console.log(req.session)
+    res.json({ message: "Welcome", success: true });
   } else {
-    res.redirect("/api");
+    console.log(req.session);
+    res.json({ message: "Unauthenticated", success: false });
   }
 });
 
-io.on("connection", (socket) => {
-  console.log("a user connected");
+app.use("/api", firCon);
+app.use("/home", secCon);
+
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", 
+    methods: ["GET", "POST"],
+  },
 });
 
-server.listen(PORT, () => {
-  console.log(`Listening on ${PORT}`);
+io.on("connection", (socket) => {
+  console.log(socket.id);
+  socket.on("disconnect", () => {
+    console.log("User is gone", socket.id);
+  });
+});
+
+server.listen(4000, () => {
+  console.log("Server is running 4000");
 });

@@ -10,7 +10,6 @@ const isAuth = async (req, res, next) => {
       success: true,
     });
   } else {
-    console.log(req.session)
     res.status(401).json({
       success: false,
     });
@@ -41,7 +40,6 @@ const backUser = async (req, res) => {
       }
       pool.query(quires.userId, [email], async (err, fin) => {
         if (err) throw err;
-
         req.session.user_id = await fin.rows[0].user_id;
         res.status(200).json({
           message: "Welcome back!",
@@ -107,7 +105,8 @@ const addUser = async (req, res) => {
         async (err, fin) => {
           if (err) throw err;
           const { rows } = await pool.query(quires.userId, [email]);
-          req.session.user_id = rows[0].user_id;
+          req.session.user_id = await rows[0].user_id;
+          console.log(req.session);
           res.status(201).json({
             message: "User created successfully!",
             success: true,

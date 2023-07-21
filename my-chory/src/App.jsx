@@ -6,11 +6,13 @@ import { useNavigate } from "react-router-dom";
 function App() {
   const [auth, setAuth] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
+      
       const data = await checkIsAuth();
+      console.log(data);
       setAuth(data.success);
       setLoading(false);
     };
@@ -18,17 +20,16 @@ function App() {
   }, []);
 
   console.log(auth);
-  return (
-    <>
-      {loading ? (
-        <LoadingP />
-      ) : auth ? (
-        navigate("/home")
-      ) : (
-        navigate("/login")
-      )}
-    </>
-  );
+
+  useEffect(() => {
+    if (auth === true) {
+      navigate("/home");
+    } else if (auth === false) {
+      navigate("/login");
+    }
+  }, [auth, navigate]);
+
+  return <>{loading ? <LoadingP /> : null}</>;
 }
 
 export default App;

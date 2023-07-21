@@ -4,7 +4,7 @@ const firCon = Router();
 const secCon = Router();
 
 //! before authentication
-firCon.get("/", controller.isAuth)
+firCon.get("/", controller.isAuth);
 firCon.post("/login", controller.backUser);
 firCon.post("/signUp", controller.addUser);
 

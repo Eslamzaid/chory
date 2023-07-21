@@ -6,10 +6,6 @@ import { useNavigate } from "react-router-dom";
 function Signup() {
   const navigate = useNavigate("");
 
-  if (typeof parseInt(localStorage.getItem("user_id")) == "number") {
-    navigate("/home");
-  }
-
   const [name, setName] = useState("");
   const [username, setUserName] = useState("");
   const [phone, setPhone] = useState("");
@@ -70,17 +66,18 @@ function Signup() {
     e.preventDefault();
     const response = await fetch("http://localhost:4000/api/signUp", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email, password, name, username, phone, bio }),
     });
     const data = await response.json();
-    if (data.success == false) {
+    if (data.success === false) {
       setMes(data.message);
-    } else if (data.success == true) {
+    } else if (data.success === true) {
+      console.log(data);
       setMes(data.message);
-      localStorage.setItem("user_id", data.user_id);
       navigate("/home");
     }
   };
@@ -251,7 +248,6 @@ function Signup() {
             <button
               className={`w-10/12 mt-10 rounded-lg border-2 border-stone-600 py-3 hover:bg-[#eeeff0] ${"cursor-pointer"}`}
               type={state ? "submit" : "button"}
-              // disabled={email}
               onClick={checkTrue}
             >
               Log in
