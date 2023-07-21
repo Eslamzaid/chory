@@ -88,7 +88,6 @@ function Signup() {
     if (data.success === false) {
       setMes(data.message);
     } else if (data.success === true) {
-      console.log(data);
       setMes(data.message);
       navigate("/home");
     }
