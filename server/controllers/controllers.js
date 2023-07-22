@@ -141,23 +141,36 @@ const searchUser = async (req, res) => {
       res.json({ message: "Please enter a proper email.", success: false });
       return;
     }
-    pool.query(quires.searchUser, [email], async (err, result) => {
+    pool.query(quires.getUser, [email], async (err, result) => {
       if (!err) {
-        if (result.rowCount == 0) {
-          res.status(404).json({ message: "User not found", success: false });
-          return;
-        }
-        const id = await result.rows[0].user_id;
-        pool.query(quires.getUserData, [await id], async (err, fin) => {
-          if (err) throw err;
-          const { phone, bio, color } = await fin.rows[0];
-          result.rows[0]["phone"] = phone;
-          result.rows[0]["bio"] = bio;
-          result.rows[0]["color"] = color;
-          res.json(result.rows);
-          return;
+        pool.query(quires.searchUser, [email], async (err, result) => {
+          if (!err) {
+            if (result.rowCount == 0) {
+              res
+                .status(404)
+                .json({ message: "User not found", success: false });
+              return;
+            }
+            if ((await result.rows[0].user_id) == (await req.session.user_id)) {
+              res.json({
+                message: "You can't search for your self",
+                success: false,
+              });
+              return;
+            }
+            const id = await result.rows[0].user_id;
+            pool.query(quires.getUserData, [await id], async (err, fin) => {
+              if (err) throw err;
+              const { phone, bio, color } = await fin.rows[0];
+              result.rows[0]["phone"] = phone;
+              result.rows[0]["bio"] = bio;
+              result.rows[0]["color"] = color;
+              res.json(result.rows);
+              return;
+            });
+          } else throw err;
         });
-      } else throw err;
+      }
     });
   } else {
     res.json({ message: "Please type a proper email", success: false });
@@ -168,29 +181,52 @@ const requestUser = async (req, res) => {
   const { email } = req.body;
   try {
     if (await validator.isEmail(email)) {
-      pool.query(quires.userId, [email], async (err, result) => {
-        if (!err) {
-          const rowsId = await result.rows[0].user_id;
-          pool.query(quires.existingRoom, [rowsId], (err, check) => {
-            if (err) throw err;
-            if (check.rowCount > 0) {
-              res.json({
-                message: "You already sended a request",
-                success: false,
-              });
-              return;
-            } else {
-              pool.query(quires.addRoom, [rowsId, uuidv4()], (err, fin) => {
-                if (err) throw err;
-                res.json(fin);
-                return;
-              });
-            }
-          });
-        } else {
-          console.error(err);
+      pool.query(
+        quires.getUserById,
+        [await req.session.user_id],
+        async (err, user) => {
+          if (!err) {
+            const userEmail = await user.rows[0].email;
+            pool.query(
+              quires.proUserId,
+              [email, await userEmail],
+              async (err, result) => {
+                if (!err) {
+                  const rowsId = result.rows;
+                  pool.query(
+                    quires.existingRoom,
+                    [rowsId[0].user_id, rowsId[1].user_id],
+                    (err, check) => {
+                      if (err) throw err;
+                      if (check.rowCount > 0) {
+                        res.json({
+                          message: "You already sended a request",
+                          success: false,
+                        });
+                        return;
+                      } else {
+                        pool.query(
+                          quires.addRoom,
+                          [rowsId[0].user_id, rowsId[1].user_id, uuidv4()],
+                          (err, fin) => {
+                            if (err) throw err;
+                            res.json(fin);
+                            return;
+                          }
+                        );
+                      }
+                    }
+                  );
+                } else {
+                  console.error(err);
+                }
+              }
+            );
+          } else {
+            throw err;
+          }
         }
-      });
+      );
     }
   } catch (error) {
     throw error;

@@ -15,6 +15,7 @@ function SearchFind({ props }) {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ email: userEmail.trim() }),
     });
 
@@ -36,7 +37,8 @@ function SearchFind({ props }) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: userEmail.trim(), friendEmail:  }),
+      credentials: "include",
+      body: JSON.stringify({ email: userEmail.trim() }),
     });
     const body = await response.json();
     console.log(body);
