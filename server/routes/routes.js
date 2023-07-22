@@ -8,6 +8,7 @@ firCon.post("/login", controller.backUser);
 firCon.post("/signUp", controller.addUser);
 
 //! after authentication
+secCon.get("/", controller.sendData)
 secCon.post("/search", controller.searchUser);
 secCon.post("/addUser", controller.requestUser)
 

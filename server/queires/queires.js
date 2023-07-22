@@ -10,11 +10,13 @@ const proUserId =
   "SELECT user_id FROM users_chory WHERE email = $1 OR email = $2";
 const searchUser = "SELECT * FROM users_chory WHERE email = $1";
 const getUserById = "SELECT email FROM users_chory WHERE user_id = $1";
+const getAllById = "SELECT * FROM users_chory WHERE user_id = $1"
 const getUserData = "SELECT * FROM user_data WHERE user_id = $1";
 const addRoom =
   "INSERT INTO connections (user_id, freind_id, roomn) VALUES ($1, $2, $3)";
 const existingRoom =
   "SELECT roomn FROM connections WHERE user_id = $1 AND freind_id = $2";
+const getFriendId = "SELECT * FROM connections WHERE user_id = $1"
 
 module.exports = {
   AddUser,
@@ -28,4 +30,6 @@ module.exports = {
   existingRoom,
   proUserId,
   getUserById,
+  getFriendId,
+  getAllById,
 };

@@ -58,7 +58,7 @@ const Chatting = () => {
   }, [socket]);
 
   return (
-    <article className={`grid ${show ? "grid-cols-3" : "grid-cols-2"}`}>
+    <article className={`grid grid-cols-3`}>
       <SearchFind
         props={{
           username: username,
@@ -68,7 +68,7 @@ const Chatting = () => {
           joinRoom: joinRoom,
         }}
       />
-      <section>
+      <section className={show ? "" : "col-span-2"}>
         <div className="bg-red-400 w-96 h-96 overflow-y-hidden">
           <ScrollToBottom className=" w-full h-full overflow-y-hidden overflow-x-hidden">
             {messageList.map((ele, ind) => {

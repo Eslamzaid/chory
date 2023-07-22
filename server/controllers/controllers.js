@@ -134,6 +134,29 @@ const addUser = async (req, res) => {
 };
 
 //! After
+const sendData = async (req, res) => {
+  const id = await req.session.user_id;
+  try {
+    pool.query(quires.getFriendId, [id], async (err, result) => {
+      if (err) throw err;
+      if (result.rowCount == 0) {
+        res.status(404).json({ message: "You list is empty", success: false });
+        return;
+      }
+      const friend = await result.rows[0];
+      pool.query(quires.getAllById, [await friend.freind_id], (err, fin) => {
+        if (err) throw err;
+        res.json(fin.rows);
+        return;
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(404).json({ message: "Something went wrong3", success: false });
+    return;
+  }
+};
+
 const searchUser = async (req, res) => {
   const email = req.body.email;
   if (await validator.isEmail(email)) {
@@ -186,13 +209,27 @@ const requestUser = async (req, res) => {
         [await req.session.user_id],
         async (err, user) => {
           if (!err) {
-            const userEmail = await user.rows[0].email;
+            if (user.rowCount == 0) {
+              res.json({
+                message: "You can't search for your self",
+                success: false,
+              });
+              return;
+            }
+            const userEmail = await user.rows[0];
             pool.query(
               quires.proUserId,
-              [email, await userEmail],
+              [email, await userEmail.email],
               async (err, result) => {
                 if (!err) {
                   const rowsId = result.rows;
+                  if (rowsId.length !== 2) {
+                    res.json({
+                      message: "Something went wrong",
+                      success: false,
+                    });
+                    return;
+                  }
                   pool.query(
                     quires.existingRoom,
                     [rowsId[0].user_id, rowsId[1].user_id],
@@ -210,7 +247,10 @@ const requestUser = async (req, res) => {
                           [rowsId[0].user_id, rowsId[1].user_id, uuidv4()],
                           (err, fin) => {
                             if (err) throw err;
-                            res.json(fin);
+                            res.status(201).json({
+                              message: "Request send successfully!",
+                              success: true,
+                            });
                             return;
                           }
                         );
@@ -239,4 +279,5 @@ module.exports = {
   addUser,
   searchUser,
   requestUser,
+  sendData,
 };
