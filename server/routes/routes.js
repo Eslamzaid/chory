@@ -8,5 +8,6 @@ firCon.post("/login", controller.backUser);
 firCon.post("/signUp", controller.addUser);
 
 //! after authentication
-secCon.get("/", controller.checkPerm);
+secCon.post("/search", controller.searchUser);
+
 module.exports = { firCon, secCon };

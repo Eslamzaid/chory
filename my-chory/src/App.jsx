@@ -17,8 +17,6 @@ function App() {
     fetchData();
   }, []);
 
-  console.log(auth);
-
   useEffect(() => {
     if (auth === true) {
       navigate("/home");

@@ -99,21 +99,26 @@ const addUser = async (req, res) => {
       (await validator.isLength(phone, { min: 4, max: 10 })) &&
       (await validator.isLength(bio, { min: 15, max: 200 }))
     ) {
-      pool.query(
-        quires.AddUser,
-        [email, password, username, name, phone, bio],
-        async (err, fin) => {
-          if (err) throw err;
-          const { rows } = await pool.query(quires.userId, [email]);
-          req.session.user_id = await rows[0].user_id;
-          res.status(201).send({
-            message: "User created successfully!",
-            success: true,
-            user_id: rows[0].user_id,
-          });
-          return;
-        }
-      );
+      pool.query(quires.AddUser, [email, password, name], async (err, fin) => {
+        if (err) throw err;
+        const { rows } = await pool.query(quires.userId, [email]);
+        req.session.user_id = await rows[0].user_id;
+        pool.query(
+          quires.addUserData,
+          [await rows[0].user_id, username, phone, bio],
+          (err, da) => {
+            if (!err) {
+              res.status(201).send({
+                message: "User created successfully!",
+                success: true,
+                user_id: rows[0].user_id,
+              });
+              return;
+            }
+            throw err;
+          }
+        );
+      });
     } else {
       res.status(400).json({
         message: "Something went wrong, please check your inputs",
@@ -128,11 +133,39 @@ const addUser = async (req, res) => {
 };
 
 //! After
-const checkPerm = (req, res) => {};
+const searchUser = async (req, res) => {
+  const email = req.body.email;
+  if (await validator.isEmail(email)) {
+    if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email)) {
+      res.json({ message: "Please enter a proper email.", success: false });
+      return;
+    }
+    pool.query(quires.searchUser, [email], async (err, result) => {
+      if (!err) {
+        if (result.rowCount == 0) {
+          res.status(404).json({ message: "User not found", success: false });
+          return;
+        }
+        const id = await result.rows[0].user_id;
+        pool.query(quires.getUserData, [await id], async (err, fin) => {
+          if (err) throw err;
+          const { phone, bio, color } = await fin.rows[0];
+          result.rows[0]["phone"] = phone;
+          result.rows[0]["bio"] = bio;
+          result.rows[0]["color"] = color;
+          res.json(result.rows);
+          return;
+        });
+      } else throw err;
+    });
+  } else {
+    res.json({ message: "Please type a proper email", success: false });
+  }
+};
 
 module.exports = {
   isAuth,
   backUser,
   addUser,
-  checkPerm,
+  searchUser,
 };
