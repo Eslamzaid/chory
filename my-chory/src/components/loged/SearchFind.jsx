@@ -25,19 +25,27 @@ function SearchFind({ props }) {
       setIsLoading(false);
       return;
     }
-
     setAve(await data);
-    console.log(data);
-    console.log(ava);
+    setIsLoading(false);
+  };
+  // <button onClick={props.joinRoom} disabled={isLoading}>
+  const requestUser = async () => {
+    setIsLoading(true);
+    const response = await fetch("http://localhost:4000/home/addUser", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: userEmail.trim(), friendEmail:  }),
+    });
+    const body = await response.json();
+    console.log(body);
+    props.joinRoom;
     setIsLoading(false);
   };
 
-  const requestUser = async () => {
-    alert("ok");
-  };
-
   return (
-    <section className="m-6 transition-all">
+    <section className={isLoading ? "animate-pulse m-6" : "m-6 transition-all"}>
       <div className="relative flex justify-start items-center z-20">
         <img src={search} alt="search" className="absolute left-3" />
         <input
@@ -46,17 +54,15 @@ function SearchFind({ props }) {
           onChange={(e) => setUserEmail(e.target.value)}
           name="userEmail"
           placeholder="Start new chat"
-          className={`bg-[#F2F3F5] px-10 border-none ring-2 ring-gray-400 focus:ring-stone-700 focus:ring-2 outline-none focus:border-none py-2 font-semibold rounded-3xl ${
-            isLoading ? "animate-pulse" : ""
-          }`}
-          onKeyUp={(event) => event.key === "Enter" && searchUser()}
+          className={`bg-[#F2F3F5] px-10 border-none ring-2 ring-gray-400 focus:ring-stone-700 focus:ring-2 outline-none focus:border-none py-2 font-semibold rounded-3xl`}
+          onKeyDown={(event) => event.key === "Enter" && searchUser()}
           disabled={isLoading}
         />
         <p>{mes}</p>
       </div>
       <div>
         {ava.length === 0 ? (
-          <p>You don't have any chats</p>
+          <p>You don&lsquo;t have any chats</p>
         ) : (
           ava.map((ele, ind) => (
             <div
@@ -67,9 +73,8 @@ function SearchFind({ props }) {
               onClick={() => requestUser()}
             >
               <p
-                className={`bg-[#${
-                  ele.color || "D8D8D8"
-                }] p-2 rounded-full w-fit`}
+                className={` p-2 rounded-full w-fit`}
+                style={{ backgroundColor: `#${ele.color}` }}
               >
                 {ele.name}
               </p>
@@ -112,7 +117,7 @@ export default SearchFind;
 /> */
 }
 {
-  /* <button onClick={props.joinRoom} disabled={isLoading}>
+  /*
   Join a room
 </button> */
 }

@@ -1,6 +1,7 @@
 const quires = require("../queires/queires");
 const validator = require("validator");
 const pool = require("../database");
+const { v4: uuidv4 } = require("uuid");
 
 //! Before
 
@@ -163,9 +164,43 @@ const searchUser = async (req, res) => {
   }
 };
 
+const requestUser = async (req, res) => {
+  const { email } = req.body;
+  try {
+    if (await validator.isEmail(email)) {
+      pool.query(quires.userId, [email], async (err, result) => {
+        if (!err) {
+          const rowsId = await result.rows[0].user_id;
+          pool.query(quires.existingRoom, [rowsId], (err, check) => {
+            if (err) throw err;
+            if (check.rowCount > 0) {
+              res.json({
+                message: "You already sended a request",
+                success: false,
+              });
+              return;
+            } else {
+              pool.query(quires.addRoom, [rowsId, uuidv4()], (err, fin) => {
+                if (err) throw err;
+                res.json(fin);
+                return;
+              });
+            }
+          });
+        } else {
+          console.error(err);
+        }
+      });
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   isAuth,
   backUser,
   addUser,
   searchUser,
+  requestUser,
 };

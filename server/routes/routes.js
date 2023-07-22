@@ -9,5 +9,6 @@ firCon.post("/signUp", controller.addUser);
 
 //! after authentication
 secCon.post("/search", controller.searchUser);
+secCon.post("/addUser", controller.requestUser)
 
 module.exports = { firCon, secCon };
