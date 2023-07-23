@@ -22,6 +22,7 @@ const addFriendRequest =
   "INSERT INTO friend_requests (sender_id, receiver_id, state) VALUES ($1, $2, $3)";
 const checkExistingFriendRequest =
   "SELECT * FROM friend_requests WHERE (sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1)";
+const getSendData = "SELECT * FROM friend_requests WHERE sender_id = $1"
 
 module.exports = {
   AddUser,
@@ -40,4 +41,5 @@ module.exports = {
   addFriendRequest,
   checkExistingFriendRequest,
   getReceiverId,
+  getSendData,
 };

@@ -7,7 +7,6 @@ function SearchFind({ props }) {
   const [ava, setAve] = useState([]);
   const [mes, setMes] = useState("");
   const [dataa, setDataa] = useState([]);
-  const [curr, setCurr] = useState([])
 
   const searchUser = async () => {
     setIsLoading(true);
@@ -26,7 +25,7 @@ function SearchFind({ props }) {
     if (data.success == false) {
       setMes(data.message);
       setIsLoading(false);
-      setAve([])
+      setAve([]);
       return;
     }
     setAve(await data);
@@ -45,18 +44,20 @@ function SearchFind({ props }) {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data)
         if (data.success == false) {
           console.log(data.message);
         } else {
-          setDataa((e) => [...e, data]);
-
+          setDataa(data);
           setMes("");
         }
       })
       .catch((e) => console.error(`Error fetching dataa: ${e}`));
+    console.log("(((((((()))))))))))");
+    console.log(dataa);
+    console.log("(((((((())))))))))");
   }, []);
-
+  
+  console.log(dataa);
   // <button onClick={props.joinRoom} disabled={isLoading}>
   const requestUser = async () => {
     setIsLoading(true);
@@ -69,11 +70,10 @@ function SearchFind({ props }) {
       body: JSON.stringify({ email: userEmail.trim() }),
     });
     const body = await response.json();
-    console.log(body);
     if (body.success == false) {
       setMes(body.message);
       setIsLoading(false);
-      setAve([])
+      setAve([]);
     }
     // props.joinRoom;
     setIsLoading(false);
@@ -87,7 +87,11 @@ function SearchFind({ props }) {
       },
       credentials: "include",
     })
-  }
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+      });
+  };
 
   return (
     <section className="m-6 transition-all">
@@ -142,35 +146,34 @@ function SearchFind({ props }) {
       </div>
       <div className="mt-40">
         <h2 className="text-3xl font-semibold">All chats</h2>
-        {dataa.length == 0 ? (
+        {dataa.length === 0 ? (
           <p className="underline opacity-70 mt-10 text-center text-slate-400 ">
             List is empty
           </p>
         ) : (
-          dataa.map((ele, ind) =>
-            ele.type == "sender" ? (
+          dataa.map((obj, ind) =>
+            obj.type === "sender" ? (
               <div
                 key={ind}
-                className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
+                className=" bg-emerald-400 font-semibold px-2 py-1 rounded-lg m-3"
               >
-                <p>State: pending</p>
-                <div className="flex">
-                  <p className="mr-4">{ele.name}</p>
-                  <p>{ele.email}</p>
-                </div>
-              </div>
-            ) : ele.type == "receiver" ? (
-              <div key={ind} className=" bg-emerald-400 font-semibold p-4 rounded-lg m-3">
                 <p className="text-sm italic underline">Friend request</p>
                 <div className="mt-2 flex justify-between">
                   <div>
-                    <p>Name: {ele.name}</p>
-                    <p>Email: {ele.email}</p>
-                    <p>Bio: {ele.bio}</p>
+                    <p>Name: {obj.name}</p>
+                    <p>Email: {obj.email}</p>
+                    <p>Bio: {obj.bio}</p>
                   </div>
-                  <div className="flex flex-col justify-between">
-                    <button className="mb-2 bg-blue-400 p-2 rounded-xl text-white">Accept</button>
-                    <button className="bg-red-500 text-white p-2 rounded-xl">Reject</button>
+                  <div className=" relative bottom-3  flex flex-col justify-between">
+                    <button className="mb-2 bg-blue-400 p-2 rounded-xl text-white">
+                      Accept
+                    </button>
+                    <button
+                      onClick={() => rejectRequest()}
+                      className="bg-red-500 text-white p-2 rounded-xl"
+                    >
+                      Reject
+                    </button>
                   </div>
                 </div>
               </div>
@@ -212,3 +215,46 @@ export default SearchFind;
   Join a room
 </button> */
 }
+
+// typeof ele == "object" ? (
+//   <div key={ind}>
+//     <p>{ele[ind].name}</p>
+//   </div>
+// ) : // <div
+//   key={ind}
+//   className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
+// >
+//   <p>State: pending</p>
+//   <div className="flex">
+//     <p className="mr-4">{ele.name}</p>
+//     <p>{ele.email}</p>
+//   </div>
+// </div>
+// ele.type == "receiver" ? (
+//   <div
+//     key={ind}
+//     className=" bg-emerald-400 font-semibold p-4 rounded-lg m-3"
+//   >
+//     <p className="text-sm italic underline">Friend request</p>
+//     <div className="mt-2 flex justify-between">
+//       <div>
+//         <p>Name: {ele.name}</p>
+//         <p>Email: {ele.email}</p>
+//         <p>Bio: {ele.bio}</p>
+//       </div>
+//       <div className="flex flex-col justify-between">
+//         <button className="mb-2 bg-blue-400 p-2 rounded-xl text-white">
+//           Accept
+//         </button>
+//         <button
+//           onClick={() => rejectRequest()}
+//           className="bg-red-500 text-white p-2 rounded-xl"
+//         >
+//           Reject
+//         </button>
+//       </div>
+//     </div>
+//   </div>
+// ) : (
+//   ""
+// )

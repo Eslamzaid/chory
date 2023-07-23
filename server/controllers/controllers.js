@@ -135,6 +135,7 @@ const addUser = async (req, res) => {
 
 //! After
 const sendData = async (req, res) => {
+  let obj = [];
   const id = await req.session.user_id;
   try {
     const result = await pool.query(quires.getSenderId, [id]);
@@ -142,14 +143,12 @@ const sendData = async (req, res) => {
     if (result.rowCount === 0) {
       const userResult = await pool.query(quires.getReceiverId, [id]);
       if (userResult.rowCount === 0) {
-        console.log("Am i here?!");
         res.json({
           message: "Your list is empty",
           success: false,
           test: id,
         });
       } else if (id === (await userResult.rows[0].receiver_id)) {
-        console.log("Let's figure it out! or???!");
         pool.query(
           quires.getAllById,
           [await userResult.rows[0].sender_id],
@@ -176,32 +175,49 @@ const sendData = async (req, res) => {
         res.json({ message: "Your list is empty", success: false, test: id });
       }
     } else {
-      const result2 = await pool.query(quires.checkExistingFriendRequest, [
-        id,
-        await result.rows[0].receiver_id,
-      ]);
-      console.log("Yes this is the sender");
-      if (id === (await result2.rows[0].sender_id)) {
-        pool.query(
-          quires.getAllById,
-          [result2.rows[0].receiver_id],
-          async (err, fin) => {
-            res.json({
-              message: "Your are the sender",
+      const result2 = await pool.query(quires.getSendData, [id]);
+      // return 2
+      if (id == (await result2.rows[0].sender_id)) {
+        if (result2.rowCount > 1) {
+          const promises = result2.rows.map(async (row) => {
+            const fin = await pool.query(quires.getAllById, [row.receiver_id]);
+            const bioo = await pool.query(quires.getUserData, [row.receiver_id])
+            return {
+              email: fin.rows[0].email,
+              name: fin.rows[0].name,
+              message: "you sended this",
               success: true,
               type: "sender",
-              email: await fin.rows[0].email,
-              name: await fin.rows[0].name,
-            });
-          }
-        );
+              bio: bioo.rows[0].bio,
+            };
+          });
+          obj = await Promise.all(promises);
+          res.json( obj );
+        } else {
+          res.json({
+            message: "Your are the sender",
+            success: true,
+            type: "sender",
+            email: result2.rows[0].email,
+            name: result2.rows[0].name,
+          });
+        }
       }
     }
+    
   } catch (error) {
     console.error("Error occurred:", error);
     res.status(500).json({ message: "Something went wrong", success: false });
   }
 };
+
+// res.json({
+//   message: "Your are the sender",
+//   success: true,
+//   type: "sender",
+//   email: await fin.rows[0].email,
+//   name: await fin.rows[0].name,
+// });
 
 const searchUser = async (req, res) => {
   const email = req.body.email;
@@ -327,8 +343,9 @@ const requestUser = async (req, res) => {
 };
 
 const deleteRequest = async (req, res) => {
-
-}
+  console.log(req.body);
+  res.json({ message: "How you doing?" });
+};
 
 module.exports = {
   isAuth,
@@ -338,5 +355,4 @@ module.exports = {
   requestUser,
   sendData,
   deleteRequest,
-  
 };
