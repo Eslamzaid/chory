@@ -6,7 +6,7 @@ function SearchFind({ props }) {
   const [isLoading, setIsLoading] = useState(false);
   const [ava, setAve] = useState([]);
   const [mes, setMes] = useState("");
-  const [data, setData] = useState([]);
+  const [dataa, setDataa] = useState([]);
 
   const searchUser = async () => {
     setIsLoading(true);
@@ -31,41 +31,27 @@ function SearchFind({ props }) {
     setMes("");
     setIsLoading(false);
   };
-  // const getDat = () => {
-  // fetch("http://localhost:4000/home", {
-  //   method: "GET",
-  //   credentials: "include",
-  // })
-  //   .then((response) => response.json())
-  //   .then((data) => {
-  //     if (data.success == false) {
-  //       // console.log(data.message);
-  //     } else {
-  //       setData(data);
-  //       setMes("");
-  //       console.log(data)
-  //     }
-  //   })
-  //   .catch((e) => console.error(`Error fetching data: ${e}`));
-  // };
 
   useEffect(() => {
     // getDat();
     fetch("http://localhost:4000/home", {
       method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
       credentials: "include",
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.success == false) {
-          // console.log(data.message);
+          console.log(data.message);
         } else {
-          setData(data);
+          setDataa((e) => [...e, data]);
           setMes("");
-          console.log(data);
+          console.log(dataa);
         }
       })
-      .catch((e) => console.error(`Error fetching data: ${e}`));
+      .catch((e) => console.error(`Error fetching dataa: ${e}`));
   }, []);
 
   // <button onClick={props.joinRoom} disabled={isLoading}>
@@ -142,17 +128,25 @@ function SearchFind({ props }) {
       </div>
       <div className="mt-40">
         <h2 className="text-3xl font-semibold">All chats</h2>
-        {data.length == 0 ? (
+        {dataa.length == 0 ? (
           <p className="underline opacity-70 mt-10 text-center text-slate-400 ">
             List is empty
           </p>
         ) : (
-          data.map((ele, ind) => (
-            <div key={ind}>
-              <p>{ele.name}</p>
-              <p>{ele.email}</p>
-            </div>
-          ))
+          dataa.map((ele, ind) =>
+            ele.type == "sender" ? (
+              <div key={ind}>
+                <p>{ele.name}</p>
+              </div>
+            ) : ele.type == "receiver" ? (
+              <div key={ind}>
+                <p>{ele.name}</p>
+                <p>{ele.email}</p>
+              </div>
+            ) : (
+              ""
+            )
+          )
         )}
       </div>
     </section>

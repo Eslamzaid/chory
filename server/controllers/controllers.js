@@ -137,23 +137,55 @@ const addUser = async (req, res) => {
 const sendData = async (req, res) => {
   const id = await req.session.user_id;
   try {
-    pool.query(quires.getFriendId, [id], async (err, result) => {
-      if (err) throw err;
-      if (result.rowCount == 0) {
-        res.status(404).json({ message: "You list is empty", success: false });
-        return;
+    const result = await pool.query(quires.getFriendId, [id]);
+    if (result.rowCount === 0) {
+      const userResult = await pool.query(quires.getUserId, [id]);
+      if (userResult.rowCount === 0) {
+        res.json({
+          message: "Your list is empty",
+          success: false,
+          test: id,
+        });
+      } else if (id === userResult.rows[0].freind_id) {
+        console.log(result);
+        pool.query(quires.getAllById, [id], async (err, fin) => {
+          console.table(fin.rows);
+          res.json({
+            message: "Your are the receiver choose wisely",
+            success: true,
+            type: "receiver",
+            email: await fin.rows[0].email,
+            name: await fin.rows[0].name,
+          });
+          return;
+        });
+      } else {
+        res.json({ message: "Your list is empty", success: false, test: id });
       }
-      const friend = await result.rows[0];
-      pool.query(quires.getAllById, [await friend.freind_id], (err, fin) => {
-        if (err) throw err;
-        res.json(fin.rows);
-        return;
-      });
-    });
+    } else {
+      const result2 = await pool.query(quires.checkExistingFriendRequest, [
+        id,
+        result.rows[0].freind_id,
+      ]);
+      if (id === result2.rows[0].sender_id) {
+        pool.query(
+          quires.getAllById,
+          [result2.rows[0].receiver_id],
+          async (err, fin) => {
+            res.json({
+              message: "Your are the sender",
+              success: true,
+              type: "sender",
+              email: await fin.rows[0].email,
+              name: await fin.rows[0].name,
+            });
+          }
+        );
+      }
+    }
   } catch (error) {
-    console.error(error);
-    res.status(404).json({ message: "Something went wrong3", success: false });
-    return;
+    console.error("Error occurred:", error);
+    res.status(500).json({ message: "Something went wrong", success: false });
   }
 };
 
@@ -247,11 +279,18 @@ const requestUser = async (req, res) => {
                           [rowsId[0].user_id, rowsId[1].user_id, uuidv4()],
                           (err, fin) => {
                             if (err) throw err;
-                            res.status(201).json({
-                              message: "Request send successfully!",
-                              success: true,
-                            });
-                            return;
+                            pool.query(
+                              quires.addFriendRequest,
+                              [rowsId[0].user_id, rowsId[1].user_id, "sent"],
+                              (err, finish) => {
+                                if (err) throw err;
+                                res.status(201).json({
+                                  message: "Request send successfully!",
+                                  success: true,
+                                });
+                                return;
+                              }
+                            );
                           }
                         );
                       }
