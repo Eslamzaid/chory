@@ -7,6 +7,7 @@ function SearchFind({ props }) {
   const [ava, setAve] = useState([]);
   const [mes, setMes] = useState("");
   const [dataa, setDataa] = useState([]);
+  const [curr, setCurr] = useState([])
 
   const searchUser = async () => {
     setIsLoading(true);
@@ -25,6 +26,7 @@ function SearchFind({ props }) {
     if (data.success == false) {
       setMes(data.message);
       setIsLoading(false);
+      setAve([])
       return;
     }
     setAve(await data);
@@ -43,12 +45,13 @@ function SearchFind({ props }) {
     })
       .then((response) => response.json())
       .then((data) => {
+        console.log(data)
         if (data.success == false) {
           console.log(data.message);
         } else {
           setDataa((e) => [...e, data]);
+
           setMes("");
-          console.log(dataa);
         }
       })
       .catch((e) => console.error(`Error fetching dataa: ${e}`));
@@ -70,10 +73,21 @@ function SearchFind({ props }) {
     if (body.success == false) {
       setMes(body.message);
       setIsLoading(false);
+      setAve([])
     }
     // props.joinRoom;
     setIsLoading(false);
   };
+
+  const rejectRequest = async () => {
+    fetch("http://localhost:4000/home/rejReq", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+  }
 
   return (
     <section className="m-6 transition-all">
@@ -135,13 +149,30 @@ function SearchFind({ props }) {
         ) : (
           dataa.map((ele, ind) =>
             ele.type == "sender" ? (
-              <div key={ind}>
-                <p>{ele.name}</p>
+              <div
+                key={ind}
+                className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
+              >
+                <p>State: pending</p>
+                <div className="flex">
+                  <p className="mr-4">{ele.name}</p>
+                  <p>{ele.email}</p>
+                </div>
               </div>
             ) : ele.type == "receiver" ? (
-              <div key={ind}>
-                <p>{ele.name}</p>
-                <p>{ele.email}</p>
+              <div key={ind} className=" bg-emerald-400 font-semibold p-4 rounded-lg m-3">
+                <p className="text-sm italic underline">Friend request</p>
+                <div className="mt-2 flex justify-between">
+                  <div>
+                    <p>Name: {ele.name}</p>
+                    <p>Email: {ele.email}</p>
+                    <p>Bio: {ele.bio}</p>
+                  </div>
+                  <div className="flex flex-col justify-between">
+                    <button className="mb-2 bg-blue-400 p-2 rounded-xl text-white">Accept</button>
+                    <button className="bg-red-500 text-white p-2 rounded-xl">Reject</button>
+                  </div>
+                </div>
               </div>
             ) : (
               ""

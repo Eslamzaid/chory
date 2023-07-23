@@ -15,9 +15,9 @@ const getUserData = "SELECT * FROM user_data WHERE user_id = $1";
 const addRoom =
   "INSERT INTO connections (user_id, freind_id, roomn) VALUES ($1, $2, $3)";
 const existingRoom =
-  "SELECT roomn FROM connections WHERE user_id = $1 AND freind_id = $2";
-const getFriendId = "SELECT * FROM connections WHERE user_id = $1";
-const getUserId = "SELECT * FROM connections WHERE freind_id = $1"
+  "SELECT * FROM friend_requests WHERE sender_id = $1 AND receiver_id = $2";
+const getSenderId = "SELECT * FROM friend_requests WHERE sender_id = $1";
+const getReceiverId = "SELECT * FROM friend_requests WHERE receiver_id = $1";
 const addFriendRequest =
   "INSERT INTO friend_requests (sender_id, receiver_id, state) VALUES ($1, $2, $3)";
 const checkExistingFriendRequest =
@@ -35,9 +35,9 @@ module.exports = {
   existingRoom,
   proUserId,
   getUserById,
-  getFriendId,
+  getSenderId,
   getAllById,
   addFriendRequest,
   checkExistingFriendRequest,
-  getUserId,
+  getReceiverId,
 };

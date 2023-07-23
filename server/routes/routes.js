@@ -11,5 +11,6 @@ firCon.post("/signUp", controller.addUser);
 secCon.get("/", controller.sendData)
 secCon.post("/search", controller.searchUser);
 secCon.post("/addUser", controller.requestUser)
+secCon.delete("/rejReq", controller.deleteRequest)
 
 module.exports = { firCon, secCon };

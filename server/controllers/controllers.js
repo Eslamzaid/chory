@@ -137,37 +137,51 @@ const addUser = async (req, res) => {
 const sendData = async (req, res) => {
   const id = await req.session.user_id;
   try {
-    const result = await pool.query(quires.getFriendId, [id]);
+    const result = await pool.query(quires.getSenderId, [id]);
+    // nothing comes from result
     if (result.rowCount === 0) {
-      const userResult = await pool.query(quires.getUserId, [id]);
+      const userResult = await pool.query(quires.getReceiverId, [id]);
       if (userResult.rowCount === 0) {
+        console.log("Am i here?!");
         res.json({
           message: "Your list is empty",
           success: false,
           test: id,
         });
-      } else if (id === userResult.rows[0].freind_id) {
-        console.log(result);
-        pool.query(quires.getAllById, [id], async (err, fin) => {
-          console.table(fin.rows);
-          res.json({
-            message: "Your are the receiver choose wisely",
-            success: true,
-            type: "receiver",
-            email: await fin.rows[0].email,
-            name: await fin.rows[0].name,
-          });
-          return;
-        });
+      } else if (id === (await userResult.rows[0].receiver_id)) {
+        console.log("Let's figure it out! or???!");
+        pool.query(
+          quires.getAllById,
+          [await userResult.rows[0].sender_id],
+          async (err, fin) => {
+            pool.query(
+              quires.getUserData,
+              [await userResult.rows[0].sender_id],
+              async (err, done) => {
+                if (err) throw err;
+                res.json({
+                  message: "Your are the receiver choose wisely",
+                  success: true,
+                  type: "receiver",
+                  email: await fin.rows[0].email,
+                  name: await fin.rows[0].name,
+                  bio: await done.rows[0].bio,
+                });
+                return;
+              }
+            );
+          }
+        );
       } else {
         res.json({ message: "Your list is empty", success: false, test: id });
       }
     } else {
       const result2 = await pool.query(quires.checkExistingFriendRequest, [
         id,
-        result.rows[0].freind_id,
+        await result.rows[0].receiver_id,
       ]);
-      if (id === result2.rows[0].sender_id) {
+      console.log("Yes this is the sender");
+      if (id === (await result2.rows[0].sender_id)) {
         pool.query(
           quires.getAllById,
           [result2.rows[0].receiver_id],
@@ -274,24 +288,24 @@ const requestUser = async (req, res) => {
                         });
                         return;
                       } else {
+                        // pool.query(
+                        //   quires.addRoom,
+                        //   [rowsId[0].user_id, rowsId[1].user_id, uuidv4()],
+                        //   (err, fin) => {
+                        if (err) throw err;
                         pool.query(
-                          quires.addRoom,
-                          [rowsId[0].user_id, rowsId[1].user_id, uuidv4()],
-                          (err, fin) => {
+                          quires.addFriendRequest,
+                          [rowsId[0].user_id, rowsId[1].user_id, "sent"],
+                          (err, finish) => {
                             if (err) throw err;
-                            pool.query(
-                              quires.addFriendRequest,
-                              [rowsId[0].user_id, rowsId[1].user_id, "sent"],
-                              (err, finish) => {
-                                if (err) throw err;
-                                res.status(201).json({
-                                  message: "Request send successfully!",
-                                  success: true,
-                                });
-                                return;
-                              }
-                            );
+                            res.status(201).json({
+                              message: "Request send successfully!",
+                              success: true,
+                            });
+                            return;
                           }
+                          //   );
+                          // }
                         );
                       }
                     }
@@ -312,6 +326,10 @@ const requestUser = async (req, res) => {
   }
 };
 
+const deleteRequest = async (req, res) => {
+
+}
+
 module.exports = {
   isAuth,
   backUser,
@@ -319,4 +337,6 @@ module.exports = {
   searchUser,
   requestUser,
   sendData,
+  deleteRequest,
+  
 };

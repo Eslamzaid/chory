@@ -261,7 +261,7 @@ function Signup() {
               type={state ? "submit" : "button"}
               onClick={checkTrue}
             >
-              Log in
+              Sing up
             </button>
             <p className="text-red-400">{mes}</p>
           </div>
