@@ -25,7 +25,8 @@ const checkExistingFriendRequest =
   "SELECT * FROM friend_requests WHERE sender_id = $1 AND receiver_id = $2";
 const checkExistingWaitingFriendReq =
   "SELECT * FROM friend_requests WHERE (receiver_id = $1 AND sender_id = $2)";
-const deleteRequest = "DELETE FROM friend_requests WHERE sender_id = $1 AND receiver_id = $2"
+const deleteRequest =
+  "DELETE FROM friend_requests WHERE sender_id = $1 AND receiver_id = $2";
 
 module.exports = {
   AddUser,

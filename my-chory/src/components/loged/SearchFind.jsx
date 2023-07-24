@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import search from "../../assets/Whatsapp (1).png";
 
 function SearchFind({ props }) {
@@ -33,7 +33,6 @@ function SearchFind({ props }) {
       setIsLoading(false);
     }
   };
-
   const getList = () => {
     fetch("http://localhost:4000/home", {
       method: "GET",
@@ -79,7 +78,6 @@ function SearchFind({ props }) {
       setMes([body.message, true]);
       setAve([]);
     }
-    // props.joinRoom;
   };
 
   const rejectRequest = async (email) => {
