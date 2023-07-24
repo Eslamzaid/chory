@@ -96,6 +96,20 @@ function SearchFind({ props }) {
         }
       });
   };
+
+  const acceptUser = async (email) => {
+    const response = await fetch("http://localhost:4000/home/acceptUser", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ email: email.trim() }),
+    });
+    const data = await response.json();
+    console.log(data);
+  };
+
   return (
     <section className="m-6 transition-all">
       <div className={isLoading ? "animate-pulse" : ""}>
@@ -178,11 +192,14 @@ function SearchFind({ props }) {
                         <p>Bio: {obj.bio}</p>
                       </div>
                       <div className=" relative bottom-3  flex flex-col justify-between">
-                        <button className="mb-2 bg-blue-400 p-2 rounded-xl text-white">
+                        <button
+                          onClick={() => acceptUser(obj.email)}
+                          className="mb-2 bg-blue-400 p-2 rounded-xl text-white"
+                        >
                           Accept
                         </button>
                         <button
-                          onClick={() => rejectRequest()}
+                          onClick={() => rejectRequest(obj.email)}
                           className="bg-red-500 text-white p-2 rounded-xl"
                         >
                           Reject
@@ -202,19 +219,6 @@ function SearchFind({ props }) {
                   </div>
                 </>
               );
-            } else if (obj.type == "sender") {
-              return (
-                <div
-                  key={ind}
-                  className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
-                >
-                  <p>State: pending</p>
-                  <div className="flex">
-                    <p className="mr-4">{obj.name}</p>
-                    <p>{obj.email}</p>
-                  </div>
-                </div>
-              );
             } else if (obj.type == "receiver") {
               return (
                 <div
@@ -229,7 +233,10 @@ function SearchFind({ props }) {
                       <p>Bio: {obj.bio}</p>
                     </div>
                     <div className=" relative bottom-3  flex flex-col justify-between">
-                      <button className="mb-2 bg-blue-400 p-2 rounded-xl text-white">
+                      <button
+                        onClick={() => acceptUser(obj.email)}
+                        className="mb-2 bg-blue-400 p-2 rounded-xl text-white"
+                      >
                         Accept
                       </button>
                       <button
@@ -239,6 +246,19 @@ function SearchFind({ props }) {
                         Reject
                       </button>
                     </div>
+                  </div>
+                </div>
+              );
+            } else if (obj.type == "sender") {
+              return (
+                <div
+                  key={ind}
+                  className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
+                >
+                  <p>State: pending</p>
+                  <div className="flex">
+                    <p className="mr-4">{obj.name}</p>
+                    <p>{obj.email}</p>
                   </div>
                 </div>
               );

@@ -262,6 +262,7 @@ const requestUser = async (req, res) => {
     if (await validator.isEmail(email)) {
       pool.query(quires.getIdByEmail, [email], async (err, result) => {
         if (err) throw err;
+
         const receiverId = await result.rows[0].user_id;
         // checking
         const check2 = await pool.query(quires.checkExistingWaitingFriendReq, [
@@ -315,6 +316,44 @@ const deleteRequest = async (req, res) => {
   });
 };
 
+const acceptRequest = async (req, res) => {
+  const id = req.session.user_id;
+  const { email } = req.body;
+  const friendId = await pool.query(quires.getIdByEmail, [email]);
+  pool.query(
+    quires.checkRoomExits,
+    [id, await friendId.rows[0].user_id],
+    async (err, result) => {
+      if (err) throw err;
+      if (result.rowCount > 0) {
+        res.json({
+          message: "already have as a connection",
+          success: false,
+        });
+      } else {
+        pool.query(
+          quires.updateStateFri,
+          [await friendId.rows[0].user_id, id],
+          (err) => {
+            if (err) throw err;
+          }
+        );
+        pool.query(
+          quires.addRoom,
+          [id, uuidv4(), await friendId.rows[0].user_id],
+          async (err) => {
+            if (err) throw err;
+            res.json({
+              message: "Connection!",
+              success: true,
+            });
+          }
+        );
+      }
+    }
+  );
+};
+
 module.exports = {
   isAuth,
   backUser,
@@ -323,4 +362,5 @@ module.exports = {
   requestUser,
   sendData,
   deleteRequest,
+  acceptRequest,
 };

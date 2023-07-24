@@ -12,7 +12,7 @@ const getEmailById = "SELECT email FROM users_chory WHERE user_id = $1";
 const getAllById = "SELECT * FROM users_chory WHERE user_id = $1";
 const getUserData = "SELECT * FROM user_data WHERE user_id = $1";
 const addRoom =
-  "INSERT INTO connections (user_id, freind_id, roomn) VALUES ($1, $2, $3)";
+  "INSERT INTO connections (user_id, roomn, freind_id) VALUES ($1, $2, $3)";
 const existingRoom =
   "SELECT * FROM friend_requests WHERE sender_id = $1 AND receiver_id = $2";
 const getSenderId = "SELECT * FROM friend_requests WHERE sender_id = $1";
@@ -27,7 +27,9 @@ const checkExistingWaitingFriendReq =
   "SELECT * FROM friend_requests WHERE (receiver_id = $1 AND sender_id = $2)";
 const deleteRequest =
   "DELETE FROM friend_requests WHERE sender_id = $1 AND receiver_id = $2";
-
+const updateStateFri =
+  "UPDATE friend_requests SET state = 'friends' WHERE sender_id = $1 AND receiver_id = $2";
+const checkRoomExits = "SELECT * FROM connections WHERE user_id = $1 AND freind_id = $2"
 module.exports = {
   AddUser,
   getUser,
@@ -48,4 +50,6 @@ module.exports = {
   getAllFromFriends,
   checkExistingWaitingFriendReq,
   deleteRequest,
+  updateStateFri,
+  checkRoomExits,
 };
