@@ -136,18 +136,79 @@ const addUser = async (req, res) => {
 //! After
 const sendData = async (req, res) => {
   let obj = [];
-  const id = await req.session.user_id;
   let pro1;
+  let pro2;
+
+  const id = await req.session.user_id;
   console.log("The session id is: " + id);
   try {
-    const getData = pool.query(
-      quires.getAllFromFriends,
-      [id],
-      async (err, result) => {
-        if (err) throw err;
-        console.table(result.rows);
-      }
-    );
+    const getRec = await pool.query(quires.getReceiverId, [id]);
+    const getSen = await pool.query(quires.getSenderId, [id]);
+    if (getRec.rowCount == 0 && getSen.rowCount == 0) {
+      res.json({
+        message: "Your list is empty!",
+        success: false,
+      });
+    } else if (getRec.rowCount !== 0 && getSen.rowCount !== 0) {
+      console.log("Receiver");
+      const addReceiver = getRec.rows.map(async (ele) => {
+        const fin = await pool.query(quires.getAllById, [ele.sender_id]);
+        const bioo = await pool.query(quires.getUserData, [ele.sender_id]);
+        return obj.push({
+          message: "You received this!",
+          success: true,
+          type: "receiver",
+          email: fin.rows[0].email,
+          name: fin.rows[0].name,
+          bio: bioo.rows[0].bio,
+        });
+      });
+
+      const getIt = getSen.rows.map(async (ele) => {
+        const fin = await pool.query(quires.getAllById, [ele.receiver_id]);
+        return obj.push({
+          message: "You sended this",
+          success: true,
+          type: "sender",
+          email: fin.rows[0].email,
+          name: fin.rows[0].name,
+        });
+      });
+      pro1 = await Promise.all(getIt);
+      pro2 = await Promise.all(addReceiver);
+      res.json(obj);
+    } else if (getRec.rowCount == 0 && getSen.rowCount !== 0) {
+      const getIt = getSen.rows.map(async (ele) => {
+        const fin = await pool.query(quires.getAllById, [ele.receiver_id]);
+        // const bioo = await pool.query(quires.getUserData, [ele.receiver_id]);
+        return {
+          message: "You sended this",
+          success: true,
+          type: "sender",
+          email: fin.rows[0].email,
+          name: fin.rows[0].name,
+          // bio: bioo.rows[0].bio,
+        };
+      });
+      obj = await Promise.all(getIt);
+      res.json(obj);
+    } else if (getRec.rowCount !== 0 && getSen.rowCount == 0) {
+      const addReceiver = getRec.rows.map(async (ele) => {
+        const fin = await pool.query(quires.getAllById, [ele.sender_id]);
+        const bioo = await pool.query(quires.getUserData, [ele.sender_id]);
+        return {
+          message: "You received this!",
+          success: true,
+          type: "receiver",
+          email: fin.rows[0].email,
+          name: fin.rows[0].name,
+          bio: bioo.rows[0].bio,
+        };
+      });
+      obj = await Promise.all(addReceiver);
+
+      res.json(obj);
+    }
   } catch (error) {
     throw error;
   }
@@ -214,8 +275,8 @@ const requestUser = async (req, res) => {
         const receiverId = await result.rows[0].user_id;
         // checking
         const check2 = await pool.query(quires.checkExistingWaitingFriendReq, [
-          receiverId,
           id,
+          receiverId,
         ]);
         if (check2.rowCount > 0) {
           res.json({

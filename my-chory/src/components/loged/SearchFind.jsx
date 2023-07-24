@@ -33,10 +33,8 @@ function SearchFind({ props }) {
       setIsLoading(false);
     }
   };
-  console.log(mes);
 
-  useEffect(() => {
-    // getDat();
+  const getList = () => {
     fetch("http://localhost:4000/home", {
       method: "GET",
       headers: {
@@ -54,9 +52,12 @@ function SearchFind({ props }) {
         }
       })
       .catch((e) => console.error(`Error fetching dataa: ${e}`));
+  };
+  useEffect(() => {
+    getList();
+    console.log(dataa);
   }, []);
 
-  console.log(dataa);
   // <button onClick={props.joinRoom} disabled={isLoading}>
   const requestUser = async () => {
     setIsLoading(true);
@@ -75,8 +76,9 @@ function SearchFind({ props }) {
       setAve([]);
     } else {
       setIsLoading(false);
-      setAve([]);
       setMes([body.message, true]);
+      setAve([]);
+      getList();
     }
     // props.joinRoom;
   };
@@ -95,16 +97,17 @@ function SearchFind({ props }) {
       });
   };
 
+  console.log(dataa);
   return (
     <section className="m-6 transition-all">
       <div className={isLoading ? "animate-pulse" : ""}>
-        <div className="relative flex justify-start items-center z-20">
+        <div className=" flex justify-start items-center z-20">
           <img
             src={search}
             alt="search"
-            className={`absolute left-3 ${mes == "" ? "" : "mb-5"}`}
+            className={`absolute left-9 top-9 z-30`}
           />
-          <div className="flex flex-col w-full">
+          <div className="flex flex-col w-full z-20">
             <input
               type="type"
               value={userEmail}
@@ -161,45 +164,90 @@ function SearchFind({ props }) {
             List is empty
           </p>
         ) : (
-          dataa.map((obj, ind) =>
-            obj.type == "receiver" ? (
-              <div
-                key={ind}
-                className=" bg-emerald-400 font-semibold px-2 py-1 rounded-lg m-3"
-              >
-                <p className="text-sm italic underline">Friend request</p>
-                <div className="mt-2 flex justify-between">
-                  <div>
-                    <p>Name: {obj.name}</p>
-                    <p>Email: {obj.email}</p>
-                    <p>Bio: {obj.bio}</p>
+          dataa.map((obj, ind) => {
+            if (obj.type == "receiver" && obj.type == "sender") {
+              return (
+                <>
+                  <div
+                    key={ind}
+                    className=" bg-emerald-400 font-semibold px-2 py-1 rounded-lg m-3"
+                  >
+                    <p className="text-sm italic underline">Friend request</p>
+                    <div className="mt-2 flex justify-between">
+                      <div>
+                        <p>Name: {obj.name}</p>
+                        <p>Email: {obj.email}</p>
+                        <p>Bio: {obj.bio}</p>
+                      </div>
+                      <div className=" relative bottom-3  flex flex-col justify-between">
+                        <button className="mb-2 bg-blue-400 p-2 rounded-xl text-white">
+                          Accept
+                        </button>
+                        <button
+                          onClick={() => rejectRequest()}
+                          className="bg-red-500 text-white p-2 rounded-xl"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <div className=" relative bottom-3  flex flex-col justify-between">
-                    <button className="mb-2 bg-blue-400 p-2 rounded-xl text-white">
-                      Accept
-                    </button>
-                    <button
-                      onClick={() => rejectRequest()}
-                      className="bg-red-500 text-white p-2 rounded-xl"
-                    >
-                      Reject
-                    </button>
+                  <div
+                    key={ind}
+                    className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
+                  >
+                    <p>State: pending</p>
+                    <div className="flex">
+                      <p className="mr-4">{obj.name}</p>
+                      <p>{obj.email}</p>
+                    </div>
+                  </div>
+                </>
+              );
+            } else if (obj.type == "sender") {
+              return (
+                <div
+                  key={ind}
+                  className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
+                >
+                  <p>State: pending</p>
+                  <div className="flex">
+                    <p className="mr-4">{obj.name}</p>
+                    <p>{obj.email}</p>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div
-                key={ind}
-                className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
-              >
-                <p>State: pending</p>
-                <div className="flex">
-                  <p className="mr-4">{obj.name}</p>
-                  <p>{obj.email}</p>
+              );
+            } else if (obj.type == "receiver") {
+              return (
+                <div
+                  key={ind}
+                  className=" bg-emerald-400 font-semibold px-2 py-1 rounded-lg m-3"
+                >
+                  <p className="text-sm italic underline">Friend request</p>
+                  <div className="mt-2 flex justify-between">
+                    <div>
+                      <p>Name: {obj.name}</p>
+                      <p>Email: {obj.email}</p>
+                      <p>Bio: {obj.bio}</p>
+                    </div>
+                    <div className=" relative bottom-3  flex flex-col justify-between">
+                      <button className="mb-2 bg-blue-400 p-2 rounded-xl text-white">
+                        Accept
+                      </button>
+                      <button
+                        onClick={() => rejectRequest()}
+                        className="bg-red-500 text-white p-2 rounded-xl"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )
-          )
+              );
+            } else {
+              return "";
+            }
+          })
         )}
       </div>
     </section>
