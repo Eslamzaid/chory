@@ -61,15 +61,13 @@ const Chatting = () => {
     <article className={`grid grid-cols-3`}>
       <SearchFind
         props={{
-          username: username,
-          setUsername: setUsername,
-          room: room,
-          setRoom: setRoom,
-          joinRoom: joinRoom,
+          setUsername,
+          setRoom,
+          joinRoom,
         }}
       />
       <section className={show ? "" : "col-span-2"}>
-        <div className="bg-red-400 w-96 h-96 overflow-y-hidden">
+        <div className="bg-sky-400 w-96 h-96 overflow-y-hidden">
           <ScrollToBottom className=" w-full h-full overflow-y-hidden overflow-x-hidden">
             {messageList.map((ele, ind) => {
               return (
@@ -84,9 +82,6 @@ const Chatting = () => {
           </ScrollToBottom>
         </div>
         <div>
-          <div>
-            <p>Live Chat</p>
-          </div>
           <div></div>
           <div>
             <input

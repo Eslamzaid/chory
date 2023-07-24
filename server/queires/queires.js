@@ -29,7 +29,18 @@ const deleteRequest =
   "DELETE FROM friend_requests WHERE sender_id = $1 AND receiver_id = $2";
 const updateStateFri =
   "UPDATE friend_requests SET state = 'friends' WHERE sender_id = $1 AND receiver_id = $2";
-const checkRoomExits = "SELECT * FROM connections WHERE user_id = $1 AND freind_id = $2"
+const checkRoomExits =
+  "SELECT * FROM connections WHERE user_id = $1 AND freind_id = $2";
+const getFriendsFromSen =
+  "SELECT * FROM friend_requests WHERE state = 'friends' AND sender_id = $1 AND receiver_id = $2";
+const getFriendsFromRes =
+  "SELECT * FROM friend_requests WHERE state = 'friends' AND receiver_id = $1 AND sender_id = $2";
+const addIntoList = "INSERT INTO friends (user_id, friendl_id) VALUES ($1, $2)";
+
+const getAllByIds =
+  "SELECT * FROM friends WHERE user_id = $1 OR friendl_id = $2";
+const getAllByIds2 =
+  "SELECT * FROM friends WHERE user_id = $1";
 module.exports = {
   AddUser,
   getUser,
@@ -52,4 +63,9 @@ module.exports = {
   deleteRequest,
   updateStateFri,
   checkRoomExits,
+  getFriendsFromSen,
+  getFriendsFromRes,
+  addIntoList,
+  getAllByIds,
+  getAllByIds2,
 };

@@ -2,6 +2,7 @@ const quires = require("../queires/queires");
 const validator = require("validator");
 const pool = require("../database");
 const { v4: uuidv4 } = require("uuid");
+const e = require("express");
 
 //! Before
 
@@ -191,6 +192,7 @@ const sendData = async (req, res) => {
       obj = await Promise.all(getIt);
       res.json(obj);
     } else if (getRec.rowCount !== 0 && getSen.rowCount == 0) {
+      console.log(getRec.rows[0].state);
       const addReceiver = getRec.rows.map(async (ele) => {
         const fin = await pool.query(quires.getAllById, [ele.sender_id]);
         const bioo = await pool.query(quires.getUserData, [ele.sender_id]);
@@ -214,6 +216,7 @@ const sendData = async (req, res) => {
 
 const searchUser = async (req, res) => {
   const email = req.body.email;
+  const session_id = await req.session.user_id;
   if (await validator.isEmail(email)) {
     if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email)) {
       res.json({ message: "Please enter a proper email.", success: false });
@@ -237,6 +240,21 @@ const searchUser = async (req, res) => {
               return;
             }
             const id = await result.rows[0].user_id;
+            try {
+              const fromSender = await pool.query(quires.getAllByIds, [
+                session_id,
+                session_id,
+              ]);
+              if (fromSender.rowCount > 0) {
+                res.json({
+                  message: "There is already a connection",
+                  success: false,
+                });
+                return;
+              }
+            } catch (error) {
+              throw error;
+            }
             pool.query(quires.getUserData, [await id], async (err, fin) => {
               if (err) throw err;
               const { phone, bio, color } = await fin.rows[0];
@@ -317,7 +335,7 @@ const deleteRequest = async (req, res) => {
 };
 
 const acceptRequest = async (req, res) => {
-  const id = req.session.user_id;
+  const id = await req.session.user_id;
   const { email } = req.body;
   const friendId = await pool.query(quires.getIdByEmail, [email]);
   pool.query(
@@ -343,15 +361,38 @@ const acceptRequest = async (req, res) => {
           [id, uuidv4(), await friendId.rows[0].user_id],
           async (err) => {
             if (err) throw err;
-            res.json({
-              message: "Connection!",
-              success: true,
-            });
+          }
+        );
+        pool.query(
+          quires.addIntoList,
+          [id, await friendId.rows[0].user_id],
+          async (err, result) => {
+            if (err) throw err;
+          }
+        );
+        pool.query(
+          quires.deleteRequest,
+          [friendId.rows[0].user_id, id],
+          (err) => {
+            if (err) throw err;
+            res.json({ message: "Connection!", success: true });
+            return;
           }
         );
       }
     }
   );
+};
+
+const sendChats = async (req, res) => {
+  const id = req.session.user_id;
+  try {
+    const fromSender = await pool.query(quires.getAllByIds2, [id]);
+    console.log(fromSender.rows);
+  } catch (error) {
+    throw error;
+  }
+  res.json({ message: "Let's start" });
 };
 
 module.exports = {
@@ -363,4 +404,5 @@ module.exports = {
   sendData,
   deleteRequest,
   acceptRequest,
+  sendChats,
 };

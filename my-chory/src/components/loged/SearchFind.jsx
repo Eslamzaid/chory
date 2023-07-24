@@ -34,7 +34,7 @@ function SearchFind({ props }) {
     }
   };
   const getList = () => {
-    fetch("http://localhost:4000/home", {
+    fetch("http://localhost:4000/home/", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -52,8 +52,22 @@ function SearchFind({ props }) {
       })
       .catch((e) => console.error(`Error fetching dataa: ${e}`));
   };
+
+  const getChats = () => {
+    fetch("http://localhost:4000/home/chats", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => console.log(data));
+  };
+
   useEffect(() => {
     getList();
+    getChats();
   }, []);
 
   // <button onClick={props.joinRoom} disabled={isLoading}>
@@ -107,7 +121,15 @@ function SearchFind({ props }) {
       body: JSON.stringify({ email: email.trim() }),
     });
     const data = await response.json();
-    console.log(data);
+    if (data.success == true) {
+      console.log(data.message);
+      getList();
+      if (dataa.length == 1) {
+        setDataa([]);
+      }
+    } else {
+      console.log(data.message);
+    }
   };
 
   return (
@@ -171,6 +193,7 @@ function SearchFind({ props }) {
       </div>
       <div className="mt-40">
         <h2 className="text-3xl font-semibold">All chats</h2>
+
         {dataa.length === 0 ? (
           <p className="underline opacity-70 mt-10 text-center text-slate-400 ">
             List is empty
