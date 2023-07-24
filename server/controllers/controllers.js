@@ -140,7 +140,6 @@ const sendData = async (req, res) => {
   let pro2;
 
   const id = await req.session.user_id;
-  console.log("The session id is: " + id);
   try {
     const getRec = await pool.query(quires.getReceiverId, [id]);
     const getSen = await pool.query(quires.getSenderId, [id]);
@@ -150,7 +149,6 @@ const sendData = async (req, res) => {
         success: false,
       });
     } else if (getRec.rowCount !== 0 && getSen.rowCount !== 0) {
-      console.log("Receiver");
       const addReceiver = getRec.rows.map(async (ele) => {
         const fin = await pool.query(quires.getAllById, [ele.sender_id]);
         const bioo = await pool.query(quires.getUserData, [ele.sender_id]);

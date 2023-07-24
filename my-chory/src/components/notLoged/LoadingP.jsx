@@ -1,7 +1,9 @@
 function LoadingP() {
   return (
-    <div>LoadingP</div>
-  )
+    <div className="bg-slate-200 w-screen h-screen flex justify-center items-center">
+      <div className="text-5xl animate-pulse font-bold italic">Loading...</div>
+    </div>
+  );
 }
 
-export default LoadingP
+export default LoadingP;
