@@ -23,15 +23,17 @@ function SearchFind({ props }) {
     const data = await response.json();
 
     if (data.success == false) {
-      setMes(data.message);
+      setMes([data.message, false]);
       setIsLoading(false);
       setAve([]);
       return;
+    } else {
+      setAve(await data);
+      setMes([data.message, true]);
+      setIsLoading(false);
     }
-    setAve(await data);
-    setMes("");
-    setIsLoading(false);
   };
+  console.log(mes);
 
   useEffect(() => {
     // getDat();
@@ -52,11 +54,8 @@ function SearchFind({ props }) {
         }
       })
       .catch((e) => console.error(`Error fetching dataa: ${e}`));
-    console.log("(((((((()))))))))))");
-    console.log(dataa);
-    console.log("(((((((())))))))))");
   }, []);
-  
+
   console.log(dataa);
   // <button onClick={props.joinRoom} disabled={isLoading}>
   const requestUser = async () => {
@@ -71,12 +70,15 @@ function SearchFind({ props }) {
     });
     const body = await response.json();
     if (body.success == false) {
-      setMes(body.message);
+      setMes([body.message, false]);
       setIsLoading(false);
       setAve([]);
+    } else {
+      setIsLoading(false);
+      setAve([]);
+      setMes([body.message, true]);
     }
     // props.joinRoom;
-    setIsLoading(false);
   };
 
   const rejectRequest = async () => {
@@ -113,7 +115,15 @@ function SearchFind({ props }) {
               onKeyDown={(event) => event.key === "Enter" && searchUser()}
               disabled={isLoading}
             />
-            <p className="text-sm text-red-400 ">{mes}</p>
+            <p
+              className={
+                mes[1] == false
+                  ? "text-sm text-red-400 "
+                  : "text-sm text-green-600"
+              }
+            >
+              {mes}
+            </p>
           </div>
         </div>
         <div>
@@ -152,7 +162,7 @@ function SearchFind({ props }) {
           </p>
         ) : (
           dataa.map((obj, ind) =>
-            obj.type === "sender" ? (
+            obj.type == "receiver" ? (
               <div
                 key={ind}
                 className=" bg-emerald-400 font-semibold px-2 py-1 rounded-lg m-3"
@@ -178,7 +188,16 @@ function SearchFind({ props }) {
                 </div>
               </div>
             ) : (
-              ""
+              <div
+                key={ind}
+                className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
+              >
+                <p>State: pending</p>
+                <div className="flex">
+                  <p className="mr-4">{obj.name}</p>
+                  <p>{obj.email}</p>
+                </div>
+              </div>
             )
           )
         )}

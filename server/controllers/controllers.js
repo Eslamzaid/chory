@@ -137,77 +137,19 @@ const addUser = async (req, res) => {
 const sendData = async (req, res) => {
   let obj = [];
   const id = await req.session.user_id;
+  let pro1;
+  console.log("The session id is: " + id);
   try {
-    const result = await pool.query(quires.getSenderId, [id]);
-    // nothing comes from result
-    if (result.rowCount === 0) {
-      const userResult = await pool.query(quires.getReceiverId, [id]);
-      if (userResult.rowCount === 0) {
-        res.json({
-          message: "Your list is empty",
-          success: false,
-          test: id,
-        });
-      } else if (id === (await userResult.rows[0].receiver_id)) {
-        pool.query(
-          quires.getAllById,
-          [await userResult.rows[0].sender_id],
-          async (err, fin) => {
-            pool.query(
-              quires.getUserData,
-              [await userResult.rows[0].sender_id],
-              async (err, done) => {
-                if (err) throw err;
-                res.json({
-                  message: "Your are the receiver choose wisely",
-                  success: true,
-                  type: "receiver",
-                  email: await fin.rows[0].email,
-                  name: await fin.rows[0].name,
-                  bio: await done.rows[0].bio,
-                });
-                return;
-              }
-            );
-          }
-        );
-      } else {
-        res.json({ message: "Your list is empty", success: false, test: id });
+    const getData = pool.query(
+      quires.getAllFromFriends,
+      [id],
+      async (err, result) => {
+        if (err) throw err;
+        console.table(result.rows);
       }
-    } else {
-      const result2 = await pool.query(quires.getSendData, [id]);
-      // return 2
-      if (id == (await result2.rows[0].sender_id)) {
-        if (result2.rowCount > 1) {
-          const promises = result2.rows.map(async (row) => {
-            const fin = await pool.query(quires.getAllById, [row.receiver_id]);
-            const bioo = await pool.query(quires.getUserData, [row.receiver_id])
-            return {
-              email: fin.rows[0].email,
-              name: fin.rows[0].name,
-              message: "you sended this",
-              success: true,
-              type: "sender",
-              bio: bioo.rows[0].bio,
-            };
-          });
-          obj = await Promise.all(promises);
-          res.json( obj );
-        } else {
-          res.json({
-            message: "Your are the sender",
-            success: true,
-            type: "sender",
-            email: result2.rows[0].email,
-            name: result2.rows[0].name,
-          });
-        }
-      }
-    }
-    
+    );
   } catch (error) {
-    console.error("Error occurred:", error);
-    res.status(500).json({ message: "Something went wrong", success: false });
+    throw error;
   }
 };
 
@@ -264,78 +206,47 @@ const searchUser = async (req, res) => {
 
 const requestUser = async (req, res) => {
   const { email } = req.body;
+  const id = await req.session.user_id;
   try {
     if (await validator.isEmail(email)) {
-      pool.query(
-        quires.getUserById,
-        [await req.session.user_id],
-        async (err, user) => {
-          if (!err) {
-            if (user.rowCount == 0) {
-              res.json({
-                message: "You can't search for your self",
-                success: false,
-              });
-              return;
-            }
-            const userEmail = await user.rows[0];
-            pool.query(
-              quires.proUserId,
-              [email, await userEmail.email],
-              async (err, result) => {
-                if (!err) {
-                  const rowsId = result.rows;
-                  if (rowsId.length !== 2) {
-                    res.json({
-                      message: "Something went wrong",
-                      success: false,
-                    });
-                    return;
-                  }
-                  pool.query(
-                    quires.existingRoom,
-                    [rowsId[0].user_id, rowsId[1].user_id],
-                    (err, check) => {
-                      if (err) throw err;
-                      if (check.rowCount > 0) {
-                        res.json({
-                          message: "You already sended a request",
-                          success: false,
-                        });
-                        return;
-                      } else {
-                        // pool.query(
-                        //   quires.addRoom,
-                        //   [rowsId[0].user_id, rowsId[1].user_id, uuidv4()],
-                        //   (err, fin) => {
-                        if (err) throw err;
-                        pool.query(
-                          quires.addFriendRequest,
-                          [rowsId[0].user_id, rowsId[1].user_id, "sent"],
-                          (err, finish) => {
-                            if (err) throw err;
-                            res.status(201).json({
-                              message: "Request send successfully!",
-                              success: true,
-                            });
-                            return;
-                          }
-                          //   );
-                          // }
-                        );
-                      }
-                    }
-                  );
-                } else {
-                  console.error(err);
-                }
-              }
-            );
-          } else {
-            throw err;
-          }
+      pool.query(quires.getIdByEmail, [email], async (err, result) => {
+        if (err) throw err;
+        const receiverId = await result.rows[0].user_id;
+        // checking
+        const check2 = await pool.query(quires.checkExistingWaitingFriendReq, [
+          receiverId,
+          id,
+        ]);
+        if (check2.rowCount > 0) {
+          res.json({
+            message: "You already have a friend request from this user",
+            success: false,
+          });
+          return;
         }
-      );
+        const check1 = await pool.query(quires.checkExistingFriendRequest, [
+          id,
+          receiverId,
+        ]);
+        if (check1.rowCount > 0) {
+          res.json({
+            message: "You can't send more than one request!",
+            success: false,
+          });
+          return;
+        }
+        pool.query(
+          quires.addFriendRequest,
+          [id, receiverId, "sent"],
+          (err, result) => {
+            if (err) throw err;
+            res.json({
+              message: "Request send successfully! (waiting for response)",
+              success: true,
+            });
+          }
+        );
+      });
     }
   } catch (error) {
     throw error;

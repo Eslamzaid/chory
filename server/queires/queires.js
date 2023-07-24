@@ -6,10 +6,9 @@ const getUser = "SELECT * FROM users_chory WHERE email = $1";
 const getUserLogin =
   "SELECT * FROM users_chory WHERE email = $1 AND password = $2";
 const userId = "SELECT user_id FROM users_chory WHERE email = $1";
-const proUserId =
-  "SELECT user_id FROM users_chory WHERE email = $1 OR email = $2";
+const getIdByEmail = "SELECT user_id FROM users_chory WHERE email = $1";
 const searchUser = "SELECT * FROM users_chory WHERE email = $1";
-const getUserById = "SELECT email FROM users_chory WHERE user_id = $1";
+const getEmailById = "SELECT email FROM users_chory WHERE user_id = $1";
 const getAllById = "SELECT * FROM users_chory WHERE user_id = $1";
 const getUserData = "SELECT * FROM user_data WHERE user_id = $1";
 const addRoom =
@@ -18,11 +17,14 @@ const existingRoom =
   "SELECT * FROM friend_requests WHERE sender_id = $1 AND receiver_id = $2";
 const getSenderId = "SELECT * FROM friend_requests WHERE sender_id = $1";
 const getReceiverId = "SELECT * FROM friend_requests WHERE receiver_id = $1";
+const getAllFromFriends =
+  "SELECT * FROM friend_requests WHERE sender_id = $1 OR receiver_id = $1";
 const addFriendRequest =
   "INSERT INTO friend_requests (sender_id, receiver_id, state) VALUES ($1, $2, $3)";
 const checkExistingFriendRequest =
-  "SELECT * FROM friend_requests WHERE (sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1)";
-const getSendData = "SELECT * FROM friend_requests WHERE sender_id = $1"
+  "SELECT * FROM friend_requests WHERE sender_id = $1 AND receiver_id = $2";
+const checkExistingWaitingFriendReq =
+  "SELECT * FROM friend_requests WHERE (receiver_id = $1 AND sender_id = $2)";
 
 module.exports = {
   AddUser,
@@ -34,12 +36,13 @@ module.exports = {
   getUserData,
   addRoom,
   existingRoom,
-  proUserId,
-  getUserById,
+  getIdByEmail,
+  getEmailById,
   getSenderId,
   getAllById,
   addFriendRequest,
   checkExistingFriendRequest,
   getReceiverId,
-  getSendData,
+  getAllFromFriends,
+  checkExistingWaitingFriendReq,
 };
