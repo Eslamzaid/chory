@@ -1,7 +1,7 @@
 function LoadingP() {
   return (
     <div className="bg-slate-200 w-screen h-screen flex justify-center items-center">
-      <div className="text-5xl animate-pulse font-bold italic">Loading...</div>
+      <div className="text-4xl animate-pulse font-bold italic">Loading</div>
     </div>
   );
 }

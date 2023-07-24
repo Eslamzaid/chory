@@ -24,7 +24,7 @@ function App() {
       navigate("/login");
     }
   }, [auth, navigate]);
-  
+
   return <>{loading ? <LoadingP /> : null}</>;
 }
 

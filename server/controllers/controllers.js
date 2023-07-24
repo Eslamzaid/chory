@@ -212,14 +212,6 @@ const sendData = async (req, res) => {
   }
 };
 
-// res.json({
-//   message: "Your are the sender",
-//   success: true,
-//   type: "sender",
-//   email: await fin.rows[0].email,
-//   name: await fin.rows[0].name,
-// });
-
 const searchUser = async (req, res) => {
   const email = req.body.email;
   if (await validator.isEmail(email)) {
@@ -313,8 +305,14 @@ const requestUser = async (req, res) => {
 };
 
 const deleteRequest = async (req, res) => {
-  console.log(req.body);
-  res.json({ message: "How you doing?" });
+  const { email } = req.params;
+  const id = req.session.user_id;
+  const userId = await pool.query(quires.getIdByEmail, [email]);
+  pool.query(quires.deleteRequest, [userId.rows[0].user_id, id], (err) => {
+    if (err) throw err;
+    res.json({ message: "Deleted successfully" });
+    return;
+  });
 };
 
 module.exports = {

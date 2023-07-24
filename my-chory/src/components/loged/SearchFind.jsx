@@ -55,7 +55,6 @@ function SearchFind({ props }) {
   };
   useEffect(() => {
     getList();
-    console.log(dataa);
   }, []);
 
   // <button onClick={props.joinRoom} disabled={isLoading}>
@@ -75,16 +74,16 @@ function SearchFind({ props }) {
       setIsLoading(false);
       setAve([]);
     } else {
+      getList();
       setIsLoading(false);
       setMes([body.message, true]);
       setAve([]);
-      getList();
     }
     // props.joinRoom;
   };
 
-  const rejectRequest = async () => {
-    fetch("http://localhost:4000/home/rejReq", {
+  const rejectRequest = async (email) => {
+    fetch("http://localhost:4000/home/rejReq/" + email, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -92,12 +91,13 @@ function SearchFind({ props }) {
       credentials: "include",
     })
       .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
+      .then(() => {
+        getList();
+        if (dataa.length == 1) {
+          setDataa([]);
+        }
       });
   };
-
-  console.log(dataa);
   return (
     <section className="m-6 transition-all">
       <div className={isLoading ? "animate-pulse" : ""}>
@@ -235,7 +235,7 @@ function SearchFind({ props }) {
                         Accept
                       </button>
                       <button
-                        onClick={() => rejectRequest()}
+                        onClick={() => rejectRequest(obj.email)}
                         className="bg-red-500 text-white p-2 rounded-xl"
                       >
                         Reject
