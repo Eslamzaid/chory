@@ -120,6 +120,7 @@ const Chatting = () => {
             <div className="flex shadow-xl bg-white p-3 rounded-3xl">
               <input
                 type="text"
+                autoFocus="true"
                 className="w-full focus:border-none focus:outline-none focus:ring-0 "
                 placeholder="Type a message now"
                 value={currentMessage}

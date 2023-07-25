@@ -37,7 +37,7 @@ const getFriendsFromRes =
   "SELECT * FROM friend_requests WHERE state = 'friends' AND receiver_id = $1 AND sender_id = $2";
 const addIntoList = "INSERT INTO friends (user_id, friendl_id) VALUES ($1, $2)";
 const getAllByIds =
-  "SELECT * FROM friends WHERE user_id = $1 AND friendl_id = $2";
+  "SELECT * FROM friends WHERE (user_id = $1 AND friendl_id = $2) OR (user_id = $2 AND friendl_id = $1)";
 const getAllByIds2 =
   "SELECT * FROM friends WHERE user_id = $1 OR friendl_id = $1";
 const getIdRoom =

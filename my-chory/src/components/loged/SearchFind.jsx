@@ -27,6 +27,7 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
       setMes([data.message, false]);
       setIsLoading(false);
       setAve([]);
+      setUserEmail("")
       return;
     } else {
       setAve(await data);
@@ -141,6 +142,7 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
       if (dataa.length == 1) {
         setDataa([]);
       }
+      getChats()
     } else {
       console.log(data.message);
     }
@@ -157,10 +159,11 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
           />
           <div className="flex flex-col w-full z-20">
             <input
-              type="type"
+              type="text"
+              autoComplete="new-password"
               value={userEmail}
               onChange={(e) => setUserEmail(e.target.value)}
-              name="userEmail"
+              // name="userEmail"
               placeholder="Start new chat"
               className={`bg-[#F2F3F5] w-full px-10 border-none ring-2 ring-gray-400 focus:ring-stone-700 focus:ring-2 outline-none focus:border-none py-2 font-semibold rounded-3xl`}
               onKeyDown={(event) => event.key === "Enter" && searchUser()}
@@ -258,9 +261,7 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
                           <p className="text-xs font-semibold">
                             Email: {obj.email}
                           </p>
-                          <p className="text-xs font-normal">
-                            Bio: {obj.bio}
-                          </p>
+                          <p className="text-xs font-normal">Bio: {obj.bio}</p>
                         </div>
                         <div className="flex flex-col justify-between">
                           <button
