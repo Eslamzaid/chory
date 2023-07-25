@@ -27,7 +27,7 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
       setMes([data.message, false]);
       setIsLoading(false);
       setAve([]);
-      setUserEmail("")
+      setUserEmail("");
       return;
     } else {
       setAve(await data);
@@ -142,7 +142,7 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
       if (dataa.length == 1) {
         setDataa([]);
       }
-      getChats()
+      getChats();
     } else {
       console.log(data.message);
     }

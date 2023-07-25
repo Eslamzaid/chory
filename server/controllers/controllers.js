@@ -133,7 +133,6 @@ const addUser = async (req, res) => {
   }
 };
 
-
 //! After
 const sendData = async (req, res) => {
   let obj = [];

@@ -65,7 +65,6 @@ const Chatting = () => {
         setUsername={setUsername}
         setRoom={setRoom}
         joinRoom={joinRoom}
-        num={10}
         setBio={setBio}
         setName={setName}
         setPhone={setPhone}
