@@ -192,7 +192,6 @@ const sendData = async (req, res) => {
       obj = await Promise.all(getIt);
       res.json(obj);
     } else if (getRec.rowCount !== 0 && getSen.rowCount == 0) {
-      console.log(getRec.rows[0].state);
       const addReceiver = getRec.rows.map(async (ele) => {
         const fin = await pool.query(quires.getAllById, [ele.sender_id]);
         const bioo = await pool.query(quires.getUserData, [ele.sender_id]);
@@ -242,7 +241,7 @@ const searchUser = async (req, res) => {
             const id = await result.rows[0].user_id;
             try {
               const fromSender = await pool.query(quires.getAllByIds, [
-                session_id,
+                id,
                 session_id,
               ]);
               if (fromSender.rowCount > 0) {
@@ -338,6 +337,7 @@ const acceptRequest = async (req, res) => {
   const id = await req.session.user_id;
   const { email } = req.body;
   const friendId = await pool.query(quires.getIdByEmail, [email]);
+  req.session.friendId = await friendId.rows[0].user_id;
   pool.query(
     quires.checkRoomExits,
     [id, await friendId.rows[0].user_id],
@@ -385,14 +385,51 @@ const acceptRequest = async (req, res) => {
 };
 
 const sendChats = async (req, res) => {
-  const id = req.session.user_id;
+  const id = await req.session.user_id;
+  const friId = await req.session.friendId;
   try {
     const fromSender = await pool.query(quires.getAllByIds2, [id]);
-    console.log(fromSender.rows);
+    if (fromSender.rowCount > 0) {
+      const rows = fromSender.rows;
+      const responseData = [];
+      for (const row of rows) {
+        if (id == (await row.user_id)) {
+          const data = await pool.query(quires.getAllById, [row.friendl_id]);
+          const roomId = await pool.query(quires.getIdRoom, [
+            id,
+            row.friendl_id,
+          ]);
+          responseData.push({
+            message: "User accepted",
+            success: true,
+            name: await data.rows[0].name,
+            email: await data.rows[0].email,
+            room: roomId.rowCount == 0 ? 0 : await roomId.rows[0].roomn,
+          });
+        } else if (id == row.friendl_id) {
+          const data = await pool.query(quires.getAllById, [row.user_id]);
+          const roomId = await pool.query(quires.getIdRoom, [row.user_id, id]);
+          responseData.push({
+            message: "You accepted this",
+            success: true,
+            name: await data.rows[0].name,
+            email: await data.rows[0].email,
+            room: roomId.rowCount == 0 ? 0 : await roomId.rows[0].roomn,
+          });
+        } else {
+          responseData.push({
+            message: "You don't have any connections",
+            success: false,
+          });
+        }
+      }
+      res.json(responseData);
+    } else {
+      res.json({ message: "You don't have any connections!", success: false });
+    }
   } catch (error) {
     throw error;
   }
-  res.json({ message: "Let's start" });
 };
 
 module.exports = {

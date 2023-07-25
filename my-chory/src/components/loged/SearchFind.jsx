@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import search from "../../assets/Whatsapp (1).png";
 
-function SearchFind({ props }) {
+function SearchFind({ setUsername, setRoom, joinRoom }) {
   const [userEmail, setUserEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [ava, setAve] = useState([]);
   const [mes, setMes] = useState("");
   const [dataa, setDataa] = useState([]);
+  const [chats, setChats] = useState([]);
 
   const searchUser = async () => {
     setIsLoading(true);
@@ -62,7 +63,21 @@ function SearchFind({ props }) {
       credentials: "include",
     })
       .then((response) => response.json())
-      .then((data) => console.log(data));
+      .then((data) => {
+        console.log(data);
+        if (data.length == 0) {
+          console.log(data.message);
+        } else {
+          setChats(data);
+        }
+      });
+  };
+
+  const handleClick = (roNum, userName) => {
+    console.log(roNum);
+    setUsername(userName);
+    setRoom(roNum);
+    joinRoom();
   };
 
   useEffect(() => {
@@ -194,101 +209,123 @@ function SearchFind({ props }) {
       <div className="mt-40">
         <h2 className="text-3xl font-semibold">All chats</h2>
 
-        {dataa.length === 0 ? (
+        {dataa.length === 0 && chats.length === 0 ? (
           <p className="underline opacity-70 mt-10 text-center text-slate-400 ">
             List is empty
           </p>
         ) : (
-          dataa.map((obj, ind) => {
-            if (obj.type == "receiver" && obj.type == "sender") {
-              return (
-                <>
-                  <div
-                    key={ind}
-                    className=" bg-emerald-400 font-semibold px-2 py-1 rounded-lg m-3"
-                  >
-                    <p className="text-sm italic underline">Friend request</p>
-                    <div className="mt-2 flex justify-between">
-                      <div>
-                        <p>Name: {obj.name}</p>
-                        <p>Email: {obj.email}</p>
-                        <p>Bio: {obj.bio}</p>
-                      </div>
-                      <div className=" relative bottom-3  flex flex-col justify-between">
-                        <button
-                          onClick={() => acceptUser(obj.email)}
-                          className="mb-2 bg-blue-400 p-2 rounded-xl text-white"
-                        >
-                          Accept
-                        </button>
-                        <button
-                          onClick={() => rejectRequest(obj.email)}
-                          className="bg-red-500 text-white p-2 rounded-xl"
-                        >
-                          Reject
-                        </button>
+          <div>
+            <div>
+              {chats.length === 0
+                ? ""
+                : chats.map((chat, index) => (
+                    <div
+                      onClick={() => handleClick(chat.room, chat.name)}
+                      key={index}
+                      className="p-4 rounded-2xl bg-slate-100 w-fit"
+                    >
+                      <div className="flex">
+                        <p className="mr-4">{chat.message}</p>
+                        <p>{chat.name}</p>
                       </div>
                     </div>
-                  </div>
-                  <div
-                    key={ind}
-                    className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
-                  >
-                    <p>State: pending</p>
-                    <div className="flex">
-                      <p className="mr-4">{obj.name}</p>
-                      <p>{obj.email}</p>
-                    </div>
-                  </div>
-                </>
-              );
-            } else if (obj.type == "receiver") {
-              return (
-                <div
-                  key={ind}
-                  className=" bg-emerald-400 font-semibold px-2 py-1 rounded-lg m-3"
-                >
-                  <p className="text-sm italic underline">Friend request</p>
-                  <div className="mt-2 flex justify-between">
-                    <div>
-                      <p>Name: {obj.name}</p>
-                      <p>Email: {obj.email}</p>
-                      <p>Bio: {obj.bio}</p>
-                    </div>
-                    <div className=" relative bottom-3  flex flex-col justify-between">
-                      <button
-                        onClick={() => acceptUser(obj.email)}
-                        className="mb-2 bg-blue-400 p-2 rounded-xl text-white"
+                  ))}
+            </div>
+            <div>
+              {dataa.map((obj, ind) => {
+                if (obj.type == "receiver" && obj.type == "sender") {
+                  return (
+                    <>
+                      <div
+                        key={ind}
+                        className=" bg-emerald-400 font-semibold px-2 py-1 rounded-lg m-3"
                       >
-                        Accept
-                      </button>
-                      <button
-                        onClick={() => rejectRequest(obj.email)}
-                        className="bg-red-500 text-white p-2 rounded-xl"
+                        <p className="text-sm italic underline">
+                          Friend request
+                        </p>
+                        <div className="mt-2 flex justify-between">
+                          <div>
+                            <p>Name: {obj.name}</p>
+                            <p>Email: {obj.email}</p>
+                            <p>Bio: {obj.bio}</p>
+                          </div>
+                          <div className=" relative bottom-3  flex flex-col justify-between">
+                            <button
+                              onClick={() => acceptUser(obj.email)}
+                              className="mb-2 bg-blue-400 p-2 rounded-xl text-white"
+                            >
+                              Accept
+                            </button>
+                            <button
+                              onClick={() => rejectRequest(obj.email)}
+                              className="bg-red-500 text-white p-2 rounded-xl"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        key={ind}
+                        className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
                       >
-                        Reject
-                      </button>
+                        <p>State: pending</p>
+                        <div className="flex">
+                          <p className="mr-4">{obj.name}</p>
+                          <p>{obj.email}</p>
+                        </div>
+                      </div>
+                    </>
+                  );
+                } else if (obj.type == "receiver") {
+                  return (
+                    <div
+                      key={ind}
+                      className=" bg-emerald-400 font-semibold px-2 py-1 rounded-lg m-3"
+                    >
+                      <p className="text-sm italic underline">Friend request</p>
+                      <div className="mt-2 flex justify-between">
+                        <div>
+                          <p>Name: {obj.name}</p>
+                          <p>Email: {obj.email}</p>
+                          <p>Bio: {obj.bio}</p>
+                        </div>
+                        <div className=" relative bottom-3  flex flex-col justify-between">
+                          <button
+                            onClick={() => acceptUser(obj.email)}
+                            className="mb-2 bg-blue-400 p-2 rounded-xl text-white"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => rejectRequest(obj.email)}
+                            className="bg-red-500 text-white p-2 rounded-xl"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              );
-            } else if (obj.type == "sender") {
-              return (
-                <div
-                  key={ind}
-                  className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
-                >
-                  <p>State: pending</p>
-                  <div className="flex">
-                    <p className="mr-4">{obj.name}</p>
-                    <p>{obj.email}</p>
-                  </div>
-                </div>
-              );
-            } else {
-              return "";
-            }
-          })
+                  );
+                } else if (obj.type == "sender") {
+                  return (
+                    <div
+                      key={ind}
+                      className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
+                    >
+                      <p>State: pending</p>
+                      <div className="flex">
+                        <p className="mr-4">{obj.name}</p>
+                        <p>{obj.email}</p>
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return "";
+                }
+              })}
+            </div>
+          </div>
         )}
       </div>
     </section>
