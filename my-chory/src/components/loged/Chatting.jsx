@@ -4,6 +4,7 @@ import { checkIsAuth } from "../../utls/func";
 import { useNavigate } from "react-router-dom";
 import ScrollToBottom from "react-scroll-to-bottom";
 import SearchFind from "./SearchFind";
+import send from "../../assets/send.png";
 
 const Chatting = () => {
   const navigate = useNavigate();
@@ -22,15 +23,16 @@ const Chatting = () => {
   const [username, setUsername] = useState("");
   const [room, setRoom] = useState("");
   const [currentMessage, setCurrentMessage] = useState("");
-  const [show, setShow] = useState(false);
   const [messageList, setMessageList] = useState([]);
+  const [bio, setBio] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
 
   const socket = io.connect("http://localhost:4000");
 
-  const joinRoom = () => {
-    if (username !== "" && room != "") {
+  const joinRoom = (room, username) => {
+    if (username !== "" && room !== "") {
       socket.emit("join_room", room);
-      setShow(true);
     }
   };
 
@@ -40,12 +42,12 @@ const Chatting = () => {
         room: room,
         author: username,
         message: currentMessage,
-        time:
-          new Date(Date.now()).getHours() +
-          ":" +
-          new Date(Date.now()).getMinutes(),
+        time: new Date().toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+        }),
       };
-
       await socket.emit("send_message", messageData);
       setCurrentMessage("");
     }
@@ -58,44 +60,82 @@ const Chatting = () => {
   }, [socket]);
 
   return (
-    <article className={`grid grid-cols-3`}>
+    <article className={`grid grid-cols-5`}>
       <SearchFind
         setUsername={setUsername}
         setRoom={setRoom}
         joinRoom={joinRoom}
         num={10}
+        setBio={setBio}
+        setName={setName}
+        setPhone={setPhone}
       />
-      <section className={show ? "" : "col-span-2"}>
-        <div className=" w-96 h-96 overflow-y-hidden">
-          <ScrollToBottom className=" w-full h-full overflow-y-hidden overflow-x-hidden">
-            {messageList.map((ele, ind) => {
-              return (
-                <div key={ind}>
-                  <div className={ele.author === username ? "" : "float-right"}>
-                    <h6>{ele.author}</h6>
-                    <h2>{ele.message}</h2>
+      <section
+        className={`bg-[#F7F8FA] flex flex-col justify-end overflow-hidden h-screen w-full col-span-3`}
+      >
+        <div className="overflow-hidden ">
+          {room.length === 0 ? (
+            <p className="flex justify-center h-screen items-center opacity-50">
+              Select a chat to start chatting
+            </p>
+          ) : (
+            <ScrollToBottom className=" w-full h-full overflow-hidden  ">
+              {messageList.map((ele, ind) => {
+                return (
+                  <div key={ind} className="mx-5 mt-6 flex flex-col">
+                    <div
+                      className={`min-w-[2rem] rounded-xl w-fit  px-4 py-3 ${
+                        ele.author === username
+                          ? "bg-[#E8ECEF]"
+                          : "ml-auto bg-[#72808B]"
+                      }`}
+                    >
+                      <div className="max-w-[20rem] break-words">
+                        <h2
+                          className={
+                            ele.author === username ? "" : "text-white"
+                          }
+                        >
+                          {ele.message}
+                        </h2>
+                      </div>
+                    </div>
+                    <h4
+                      className={`text-xs ${
+                        ele.author === username ? "justify-self-end" : "ml-auto"
+                      }`}
+                    >
+                      {ele.time}
+                    </h4>
                   </div>
-                </div>
-              );
-            })}
-          </ScrollToBottom>
+                );
+              })}
+            </ScrollToBottom>
+          )}
         </div>
-        <div>
-          <div></div>
-          <div>
-            <input
-              type="text"
-              placeholder="Hey..."
-              value={currentMessage}
-              onChange={(e) => setCurrentMessage(e.target.value)}
-              onKeyUp={(event) => {
-                event.key == "Enter" && sendMessage();
-              }}
-            />
-            <button className="bg-slate-300" onClick={sendMessage}>
-              &#9658;
-            </button>
-          </div>
+        <div className={room.length === 0 ? "" : "p-10"}>
+          {room.length === 0 ? (
+            ""
+          ) : (
+            <div className="flex shadow-xl bg-white p-3 rounded-3xl">
+              <input
+                type="text"
+                className="w-full focus:border-none focus:outline-none focus:ring-0 "
+                placeholder="Type a message now"
+                value={currentMessage}
+                onChange={(e) => setCurrentMessage(e.target.value)}
+                onKeyUp={(event) => {
+                  event.key == "Enter" && sendMessage();
+                }}
+              />
+              <button
+                className="object-contain w-7 items-center"
+                onClick={sendMessage}
+              >
+                <img src={send} alt="send message" className="" />
+              </button>
+            </div>
+          )}
         </div>
       </section>
       <section></section>

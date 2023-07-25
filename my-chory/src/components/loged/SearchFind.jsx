@@ -34,6 +34,7 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
       setIsLoading(false);
     }
   };
+
   const getList = () => {
     fetch("http://localhost:4000/home/", {
       method: "GET",
@@ -64,8 +65,7 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
-        if (data.length == 0) {
+        if (data.success === false) {
           console.log(data.message);
         } else {
           setChats(data);
@@ -74,10 +74,9 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
   };
 
   const handleClick = (roNum, userName) => {
-    console.log(roNum);
-    setUsername(userName);
     setRoom(roNum);
-    joinRoom();
+    setUsername(userName);
+    joinRoom(roNum, userName);
   };
 
   useEffect(() => {
@@ -85,7 +84,6 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
     getChats();
   }, []);
 
-  // <button onClick={props.joinRoom} disabled={isLoading}>
   const requestUser = async () => {
     setIsLoading(true);
     const response = await fetch("http://localhost:4000/home/addUser", {
@@ -105,6 +103,7 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
       getList();
       setIsLoading(false);
       setMes([body.message, true]);
+      setUserEmail("");
       setAve([]);
     }
   };
@@ -148,9 +147,9 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
   };
 
   return (
-    <section className="m-6 transition-all">
+    <section className="m-6 transition-all font-sans ">
       <div className={isLoading ? "animate-pulse" : ""}>
-        <div className=" flex justify-start items-center z-20">
+        <div className="flex justify-start items-center z-20">
           <img
             src={search}
             alt="search"
@@ -170,8 +169,8 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
             <p
               className={
                 mes[1] == false
-                  ? "text-sm text-red-400 "
-                  : "text-sm text-green-600"
+                  ? "text-sm text-red-400 mt-2"
+                  : "text-sm text-green-600 mt-2"
               }
             >
               {mes}
@@ -190,7 +189,7 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
                   onClick={() => requestUser()}
                 >
                   <p
-                    className={` p-2 rounded-full w-fit`}
+                    className={`p-2 rounded-full w-fit`}
                     style={{ backgroundColor: `#${ele.color}` }}
                   >
                     {ele.name}
@@ -207,7 +206,7 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
         </div>
       </div>
       <div className="mt-40">
-        <h2 className="text-3xl font-semibold">All chats</h2>
+        <h2 className="text-2xl font-semibold">All chats</h2>
 
         {dataa.length === 0 && chats.length === 0 ? (
           <p className="underline opacity-70 mt-10 text-center text-slate-400 ">
@@ -222,84 +221,57 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
                     <div
                       onClick={() => handleClick(chat.room, chat.name)}
                       key={index}
-                      className="p-4 rounded-2xl bg-slate-100 w-fit"
+                      className="p-4 hover:cursor-pointer  rounded-2xl bg-slate-100 w-full  my-3"
                     >
-                      <div className="flex">
-                        <p className="mr-4">{chat.message}</p>
-                        <p>{chat.name}</p>
+                      <div className="flex  items-center">
+                        <p className="bg-blue-300 flex justify-center items-center h-10 w-10 mr-3  rounded-full">
+                          {chat.name.slice(0, 1).toUpperCase() +
+                            chat.name[chat.name.length - 1].toUpperCase()}
+                        </p>
+                        <div className="text-ellipsis truncate">
+                          <p>
+                            {chat.name.charAt(0).toUpperCase() +
+                              chat.name.slice(1, chat.name.length)}
+                          </p>
+                          <p className="text-xs text-slate-500">{chat.bio}</p>
+                        </div>
                       </div>
                     </div>
                   ))}
             </div>
             <div>
               {dataa.map((obj, ind) => {
-                if (obj.type == "receiver" && obj.type == "sender") {
-                  return (
-                    <>
-                      <div
-                        key={ind}
-                        className=" bg-emerald-400 font-semibold px-2 py-1 rounded-lg m-3"
-                      >
-                        <p className="text-sm italic underline">
-                          Friend request
-                        </p>
-                        <div className="mt-2 flex justify-between">
-                          <div>
-                            <p>Name: {obj.name}</p>
-                            <p>Email: {obj.email}</p>
-                            <p>Bio: {obj.bio}</p>
-                          </div>
-                          <div className=" relative bottom-3  flex flex-col justify-between">
-                            <button
-                              onClick={() => acceptUser(obj.email)}
-                              className="mb-2 bg-blue-400 p-2 rounded-xl text-white"
-                            >
-                              Accept
-                            </button>
-                            <button
-                              onClick={() => rejectRequest(obj.email)}
-                              className="bg-red-500 text-white p-2 rounded-xl"
-                            >
-                              Reject
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        key={ind}
-                        className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
-                      >
-                        <p>State: pending</p>
-                        <div className="flex">
-                          <p className="mr-4">{obj.name}</p>
-                          <p>{obj.email}</p>
-                        </div>
-                      </div>
-                    </>
-                  );
-                } else if (obj.type == "receiver") {
+                if (obj.type === "receiver") {
                   return (
                     <div
                       key={ind}
-                      className=" bg-emerald-400 font-semibold px-2 py-1 rounded-lg m-3"
+                      className="bg-slate-50 shadow-lg rounded-lg p-4 m-3 transition-all duration-300"
                     >
-                      <p className="text-sm italic underline">Friend request</p>
+                      <p className="text-lg font-semibold underline mb-2">
+                        Friend Request
+                      </p>
                       <div className="mt-2 flex justify-between">
                         <div>
-                          <p>Name: {obj.name}</p>
-                          <p>Email: {obj.email}</p>
-                          <p>Bio: {obj.bio}</p>
+                          <p className="text-base font-semibold capitalize">
+                            Name: {obj.name}
+                          </p>
+                          <p className="text-xs font-semibold">
+                            Email: {obj.email}
+                          </p>
+                          <p className="text-xs font-normal">
+                            Bio: {obj.bio}
+                          </p>
                         </div>
-                        <div className=" relative bottom-3  flex flex-col justify-between">
+                        <div className="flex flex-col justify-between">
                           <button
                             onClick={() => acceptUser(obj.email)}
-                            className="mb-2 bg-blue-400 p-2 rounded-xl text-white"
+                            className="mb-2 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg font-semibold"
                           >
                             Accept
                           </button>
                           <button
                             onClick={() => rejectRequest(obj.email)}
-                            className="bg-red-500 text-white p-2 rounded-xl"
+                            className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg font-semibold"
                           >
                             Reject
                           </button>
@@ -307,21 +279,25 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
                       </div>
                     </div>
                   );
-                } else if (obj.type == "sender") {
+                } else if (obj.type === "sender") {
                   return (
                     <div
                       key={ind}
-                      className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
+                      className="p-4 rounded-2xl my-2 bg-gray-200 hover:bg-gray-300 transition-all duration-300 w-fit"
                     >
-                      <p>State: pending</p>
-                      <div className="flex">
-                        <p className="mr-4">{obj.name}</p>
-                        <p>{obj.email}</p>
+                      <p className="text-sm font-semibold">State: Pending</p>
+                      <div className="flex flex-col">
+                        <p className="text-base font-medium mr-2 capitalize">
+                          Name: {obj.name}
+                        </p>
+                        <p className="text-base text-gray-600">
+                          Email: {obj.email}
+                        </p>
                       </div>
                     </div>
                   );
                 } else {
-                  return "";
+                  return null; // Added a condition to return null when the "obj.type" doesn't match any case
                 }
               })}
             </div>
@@ -333,73 +309,3 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
 }
 
 export default SearchFind;
-
-{
-  /* {ele.name.split(" ") == 1
-  ? ele.name[0] + ele.name[ele.name.length - 1]
-  : ele.name[0][0] + ele.name[ele.name.length - 1]} */
-}
-
-{
-  /* 
-<input
-  type="text"
-  placeholder="Eslam..."
-  value={props.username}
-  onChange={(e) => props.setUsername(e.target.value)}
-/>
-<input
-  type="text"
-  placeholder="Room..."
-  value={props.room}
-  onChange={(e) => props.setRoom(e.target.value)}
-/> */
-}
-{
-  /*
-  Join a room
-</button> */
-}
-
-// typeof ele == "object" ? (
-//   <div key={ind}>
-//     <p>{ele[ind].name}</p>
-//   </div>
-// ) : // <div
-//   key={ind}
-//   className="p-4 rounded-2xl bg-slate-400 animate-pulse w-fit"
-// >
-//   <p>State: pending</p>
-//   <div className="flex">
-//     <p className="mr-4">{ele.name}</p>
-//     <p>{ele.email}</p>
-//   </div>
-// </div>
-// ele.type == "receiver" ? (
-//   <div
-//     key={ind}
-//     className=" bg-emerald-400 font-semibold p-4 rounded-lg m-3"
-//   >
-//     <p className="text-sm italic underline">Friend request</p>
-//     <div className="mt-2 flex justify-between">
-//       <div>
-//         <p>Name: {ele.name}</p>
-//         <p>Email: {ele.email}</p>
-//         <p>Bio: {ele.bio}</p>
-//       </div>
-//       <div className="flex flex-col justify-between">
-//         <button className="mb-2 bg-blue-400 p-2 rounded-xl text-white">
-//           Accept
-//         </button>
-//         <button
-//           onClick={() => rejectRequest()}
-//           className="bg-red-500 text-white p-2 rounded-xl"
-//         >
-//           Reject
-//         </button>
-//       </div>
-//     </div>
-//   </div>
-// ) : (
-//   ""
-// )

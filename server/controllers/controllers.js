@@ -2,7 +2,6 @@ const quires = require("../queires/queires");
 const validator = require("validator");
 const pool = require("../database");
 const { v4: uuidv4 } = require("uuid");
-const e = require("express");
 
 //! Before
 
@@ -133,6 +132,7 @@ const addUser = async (req, res) => {
     res.status(500).json({ message: "Something went wrong", success: false });
   }
 };
+
 
 //! After
 const sendData = async (req, res) => {
@@ -386,7 +386,6 @@ const acceptRequest = async (req, res) => {
 
 const sendChats = async (req, res) => {
   const id = await req.session.user_id;
-  const friId = await req.session.friendId;
   try {
     const fromSender = await pool.query(quires.getAllByIds2, [id]);
     if (fromSender.rowCount > 0) {
@@ -399,22 +398,26 @@ const sendChats = async (req, res) => {
             id,
             row.friendl_id,
           ]);
+          const bioo = await pool.query(quires.getUserData, [row.friendl_id]);
           responseData.push({
             message: "User accepted",
             success: true,
             name: await data.rows[0].name,
             email: await data.rows[0].email,
             room: roomId.rowCount == 0 ? 0 : await roomId.rows[0].roomn,
+            bio: await bioo.rows[0].bio,
           });
         } else if (id == row.friendl_id) {
           const data = await pool.query(quires.getAllById, [row.user_id]);
           const roomId = await pool.query(quires.getIdRoom, [row.user_id, id]);
+          const bioo = await pool.query(quires.getUserData, [row.user_id]);
           responseData.push({
             message: "You accepted this",
             success: true,
             name: await data.rows[0].name,
             email: await data.rows[0].email,
             room: roomId.rowCount == 0 ? 0 : await roomId.rows[0].roomn,
+            bio: await bioo.rows[0].bio,
           });
         } else {
           responseData.push({
