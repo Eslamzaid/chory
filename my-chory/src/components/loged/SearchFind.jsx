@@ -11,6 +11,7 @@ function SearchFind({
   setInfo,
   setShow,
   show,
+  setFin,
 }) {
   const [userEmail, setUserEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -146,15 +147,29 @@ function SearchFind({
     }
   };
 
+  let temp = "";
   const handleClick2 = async (email) => {
     for (let i = 0; i < chats.length; i++) {
       if (chats[i].email == email) {
-        setInfo({
+        const da = {
           name: chats[i].name,
           email: chats[i].email,
           bio: chats[i].bio,
           phone: chats[i].phone,
-        });
+        };
+        setInfo(da);
+        if (show.length == 0) {
+          console.log("HIO");
+          setShow(da);
+          setFin(true);
+          temp = chats[i].email;
+        } else if (show.email == temp) {
+          setFin(false);
+        } else if (show.email !== temp) {
+          setFin(true);
+        } else {
+          setShow(da);
+        }
       }
     }
   };
@@ -314,15 +329,12 @@ function SearchFind({
                             chat.name[chat.name.length - 1].toUpperCase()}
                         </p>
                         <div className="text-ellipsis truncate">
-                          <p className="capitalize">
-                            {chat.name}
-                          </p>
+                          <p className="capitalize">{chat.name}</p>
                           <p className="text-xs text-slate-500">{chat.bio}</p>
                         </div>
                       </div>
                       <img
                         onClick={() => {
-                          setShow(!show);
                           handleClick2(chat.email);
                         }}
                         src={options}
@@ -332,22 +344,6 @@ function SearchFind({
                     </div>
                   ))}
             </div>
-            {/* {show ? (
-              <div
-                onClick={() => setShow(false)}
-                className="bg-slate-300/[.40] w-screen flex justify-center items-center top-0 left-0 z-40 h-screen absolute"
-              >
-                <div className=" bg-white py-28 px-48 rounded-xl opacity-100 z-50 ">
-                  <h2>{info.name}</h2>
-                  {info.email}
-                  <br />
-                  {info.phone}
-                  <br />
-                </div>
-              </div>
-            ) : (
-              ""
-            )} */}
             <div>
               {dataa.map((obj, ind) => {
                 if (obj.type === "receiver") {

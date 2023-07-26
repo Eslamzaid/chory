@@ -78,7 +78,7 @@ const addUser = async (req, res) => {
       (await validator.isEmail(email)) &&
       (await validator.isLength(password, {
         min: 8,
-        max: undefined,
+        max: 10,
       })) &&
       (await validator.isLength(name, { min: 2, max: 20 })) &&
       (await validator.isLength(username, {
@@ -464,6 +464,8 @@ const getHistory = async (req, res) => {
   });
 };
 
+const deleteChat = async (req, res) => {}
+
 module.exports = {
   backUser,
   addUser,
@@ -474,4 +476,5 @@ module.exports = {
   acceptRequest,
   sendChats,
   getHistory,
+  deleteChat,
 };

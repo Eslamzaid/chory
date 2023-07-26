@@ -33,7 +33,8 @@ const Chatting = () => {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [info, setInfo] = useState([]);
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState([]);
+  const [fin, setFin] = useState(false);
 
   const socket = io.connect("http://localhost:4000");
 
@@ -70,13 +71,9 @@ const Chatting = () => {
     });
   }, [socket]);
 
-  console.log(messageList);
-
   return (
     <article
-      className={` transition-all grid ${
-        show ? "grid-cols-5" : "grid-cols-4"
-      } `}
+      className={` transition-all grid ${fin ? "grid-cols-5" : "grid-cols-4"} `}
     >
       <SearchFind
         setUsername={setUsername}
@@ -91,6 +88,7 @@ const Chatting = () => {
         setInfo={setInfo}
         setShow={setShow}
         show={show}
+        setFin={setFin}
       />
       <section
         className={`bg-[#F7F8FA] flex flex-col justify-end overflow-hidden h-screen w-full col-span-3`}
@@ -166,28 +164,43 @@ const Chatting = () => {
           )}
         </div>
       </section>
-      {show ? (
-        <section>
-          <div className="flex font-medium font-snsn m-7">
+      {show.length == 0 ? (
+        ""
+      ) : fin == true ? (
+        <section className="m-7">
+          <div className="flex font-medium font-snsn ">
             <img
               src={close}
               className="w-4 mr-4 cursor-pointer object-contain opacity-80"
-              onClick={() => setShow(!show)}
+              onClick={() => setFin(!fin)}
               alt="Close bio"
             />
             <p>Contact info</p>
           </div>
-          <div className="flex flex-col justify-center items-center">
+          <div className="flex flex-col justify-center items-center mt-10">
             <div className="bg-[#370866] flex justify-center items-center rounded-full w-48 h-48 ">
               <h2 className="rounded-full  font-bold text-8xl text-white">
                 {info.name.slice(0, 1).toUpperCase() +
                   info.name[info.name.length - 1].toUpperCase()}
               </h2>
             </div>
-            <h3 className="capitalize font-semibold text-4xl my-2">{info.name}</h3>
+            <h3 className="capitalize font-semibold text-4xl my-2">
+              {info.name}
+            </h3>
           </div>
-          <div></div>
-          <div></div>
+          <div className="mt-20 text-center">
+            <h4 className="font-bold">About</h4>
+            <h5 className="opacity-90 text-slate-600 mt-3 mb-2">
+              Eamil: {info.email}
+            </h5>
+            <h5 className="opacity-90 text-slate-600 my-2">Bio: {info.bio}</h5>
+            <h5 className="opacity-90 text-slate-600">Phone: {info.phone}</h5>
+          </div>
+          <div className="mt-48 flex justify-center">
+            <button class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+              Delete contact
+            </button>
+          </div>
         </section>
       ) : (
         ""

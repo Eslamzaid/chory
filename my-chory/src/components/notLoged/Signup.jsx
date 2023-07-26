@@ -33,7 +33,7 @@ function Signup() {
       { name: "Phone number", value: phone, minLength: 7 },
       { name: "Bio", value: bio, minLength: 15, maxLength: 200 },
       { name: "Email", value: email, minLength: 5 },
-      { name: "Password", value: password, minLength: 6 },
+      { name: "Password", value: password, minLength: 6, maxLength: 10 },
     ];
     if (!/^\d+$/.test(phone)) {
       setMes("Phone number should be a NUMBER");
