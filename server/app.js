@@ -47,20 +47,39 @@ const io = new Server(server, {
   },
 });
 
+const userSockets = {}
+
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
   socket.on("join_room", (data) => {
     socket.join(data);
-    console.log(`User with id: ${socket.id} joined room: ${data}`);
+    console.log(`User with id: ${socket.id} joined room: ${data.room}`);
+
+    const userId = data.userId;
+    if (!userSockets[userId]) {
+      userSockets[userId] = [];
+    }
+    userSockets[userId].push(socket.id);
   });
 
   socket.on("send_message", (data) => {
+    const userId = data.userId;
+    if (userSockets[userId].includes(socket.id)) {
+      return;
+    }
     socket.to(data.room).emit("receive_message", data);
+    userSockets[userId].push(socket.id);
   });
 
   socket.on("disconnect", () => {
     console.log("User is gone", socket.id);
+    for (const userId in userSockets) {
+      const index = userSockets[userId].indexOf(socket.id);
+      if (index !== -1) {
+        userSockets[userId].splice(index, 1);
+      }
+    }
   });
 });
 

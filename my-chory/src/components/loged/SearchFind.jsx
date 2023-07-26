@@ -8,6 +8,7 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
   const [mes, setMes] = useState("");
   const [dataa, setDataa] = useState([]);
   const [chats, setChats] = useState([]);
+  const [avaRooms, setAvaRooms] = useState([]);
 
   const searchUser = async () => {
     setIsLoading(true);
@@ -74,10 +75,26 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
       });
   };
 
-  const handleClick = (roNum, userName) => {
-    setRoom(roNum);
-    setUsername(userName);
-    joinRoom(roNum, userName);
+  const handleClick = async (roNum, userName) => {
+    try {
+      if (avaRooms.includes(roNum)) {
+        console.log("You are in this room already!");
+        setUsername(userName);
+        setRoom(roNum);
+        return;
+      } else {
+        setRoom(roNum);
+        console.log("________________-__");
+        setAvaRooms((e) => [...e, roNum]);
+        console.log(avaRooms);
+        console.log("__________________");
+        setUsername(userName);
+        await joinRoom(roNum, userName);
+        console.log("You joined this room: " + roNum);
+      }
+    } catch (error) {
+      console.error("Error in handleClick:", error);
+    }
   };
 
   useEffect(() => {

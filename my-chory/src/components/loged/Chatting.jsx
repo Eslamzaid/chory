@@ -59,10 +59,13 @@ const Chatting = () => {
     });
   }, [socket]);
 
+  console.log(messageList);
+
   return (
     <article className={`grid grid-cols-5`}>
       <SearchFind
         setUsername={setUsername}
+        room={room}
         setRoom={setRoom}
         joinRoom={joinRoom}
         setBio={setBio}
@@ -119,7 +122,7 @@ const Chatting = () => {
             <div className="flex shadow-xl bg-white p-3 rounded-3xl">
               <input
                 type="text"
-                autoFocus="true"
+                autoFocus={true}
                 className="w-full focus:border-none focus:outline-none focus:ring-0 "
                 placeholder="Type a message now"
                 value={currentMessage}
