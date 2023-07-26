@@ -405,6 +405,8 @@ const sendChats = async (req, res) => {
             email: await data.rows[0].email,
             room: roomId.rowCount == 0 ? 0 : await roomId.rows[0].roomn,
             bio: await bioo.rows[0].bio,
+            phone: await bioo.rows[0].phone,
+            username: await bioo.rows[0].username,
           });
         } else {
           responseData.push({

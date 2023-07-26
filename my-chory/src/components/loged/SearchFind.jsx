@@ -16,6 +16,8 @@ function SearchFind({
   const [dataa, setDataa] = useState([]);
   const [chats, setChats] = useState([]);
   const [avaRooms, setAvaRooms] = useState([]);
+  const [info, setInfo] = useState([]);
+  const [show, setShow] = useState(false);
 
   const searchUser = async () => {
     setIsLoading(true);
@@ -141,6 +143,22 @@ function SearchFind({
     } catch (error) {
       console.error("Error occured:", error);
     }
+  };
+
+  const handleClick2 = async (email) => {
+    console.log(info);
+    for (let i = 0; i < chats.length; i++) {
+      if (chats[i].email == email) {
+        console.log(chats[i].name);
+        setInfo({
+          name: chats[i].name,
+          email: chats[i].email,
+          bio: chats[i].bio,
+          phone: chats[i].phone,
+        });
+      }
+    }
+    console.log(info);
   };
 
   useEffect(() => {
@@ -306,13 +324,31 @@ function SearchFind({
                         </div>
                       </div>
                       <img
+                        onClick={() => {
+                          setShow(true);
+                          handleClick2(chat.email);
+                        }}
                         src={options}
                         alt="options"
-                        className="object-contain w-5 relative bottom-2 bg-red-400"
+                        className=" object-contain w-5 relative bottom-2 m-1"
                       />
                     </div>
                   ))}
             </div>
+            {show ? (
+              <div
+                onClick={() => setShow(false)}
+                className="bg-slate-300/[.40] w-screen flex justify-center items-center top-0 left-0 z-40 h-screen absolute"
+              >
+                <div className=" bg-white py-28 px-48 rounded-xl opacity-100 z-50 ">
+                  {info.name}<br/>
+                  {info.email}<br/>
+                  {info.phone}<br/>
+                </div>
+              </div>
+            ) : (
+              ""
+            )}
             <div>
               {dataa.map((obj, ind) => {
                 if (obj.type === "receiver") {
