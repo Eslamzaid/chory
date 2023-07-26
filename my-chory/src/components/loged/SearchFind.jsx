@@ -8,6 +8,9 @@ function SearchFind({
   joinRoom,
   setEmail,
   setMessageList,
+  setInfo,
+  setShow,
+  show,
 }) {
   const [userEmail, setUserEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -16,8 +19,6 @@ function SearchFind({
   const [dataa, setDataa] = useState([]);
   const [chats, setChats] = useState([]);
   const [avaRooms, setAvaRooms] = useState([]);
-  const [info, setInfo] = useState([]);
-  const [show, setShow] = useState(false);
 
   const searchUser = async () => {
     setIsLoading(true);
@@ -146,10 +147,8 @@ function SearchFind({
   };
 
   const handleClick2 = async (email) => {
-    console.log(info);
     for (let i = 0; i < chats.length; i++) {
       if (chats[i].email == email) {
-        console.log(chats[i].name);
         setInfo({
           name: chats[i].name,
           email: chats[i].email,
@@ -158,7 +157,6 @@ function SearchFind({
         });
       }
     }
-    console.log(info);
   };
 
   useEffect(() => {
@@ -316,39 +314,40 @@ function SearchFind({
                             chat.name[chat.name.length - 1].toUpperCase()}
                         </p>
                         <div className="text-ellipsis truncate">
-                          <p>
-                            {chat.name.charAt(0).toUpperCase() +
-                              chat.name.slice(1, chat.name.length)}
+                          <p className="capitalize">
+                            {chat.name}
                           </p>
                           <p className="text-xs text-slate-500">{chat.bio}</p>
                         </div>
                       </div>
                       <img
                         onClick={() => {
-                          setShow(true);
+                          setShow(!show);
                           handleClick2(chat.email);
                         }}
                         src={options}
                         alt="options"
-                        className=" object-contain w-5 relative bottom-2 m-1"
+                        className=" object-contain w-5 relative bottom-1 right-4 m-1"
                       />
                     </div>
                   ))}
             </div>
-            {show ? (
+            {/* {show ? (
               <div
                 onClick={() => setShow(false)}
                 className="bg-slate-300/[.40] w-screen flex justify-center items-center top-0 left-0 z-40 h-screen absolute"
               >
                 <div className=" bg-white py-28 px-48 rounded-xl opacity-100 z-50 ">
-                  {info.name}<br/>
-                  {info.email}<br/>
-                  {info.phone}<br/>
+                  <h2>{info.name}</h2>
+                  {info.email}
+                  <br />
+                  {info.phone}
+                  <br />
                 </div>
               </div>
             ) : (
               ""
-            )}
+            )} */}
             <div>
               {dataa.map((obj, ind) => {
                 if (obj.type === "receiver") {
