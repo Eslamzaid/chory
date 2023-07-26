@@ -8,17 +8,20 @@ import send from "../../assets/send.png";
 
 const Chatting = () => {
   const navigate = useNavigate();
-  // A state for controlling the grid and hide/show the about of the user
+  const [emailId, setEmailId] = useState("");
+
   useEffect(() => {
     const checking = async () => {
       const check = await checkIsAuth();
-      if (!check.success) {
+      if (check.success == false) {
         navigate("/");
+      } else {
+        const { id } = check;
+        setEmailId(id);
       }
     };
-
     checking();
-  });
+  }, []);
 
   const [username, setUsername] = useState("");
   const [room, setRoom] = useState("");
@@ -27,6 +30,7 @@ const Chatting = () => {
   const [bio, setBio] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
 
   const socket = io.connect("http://localhost:4000");
 
@@ -37,18 +41,22 @@ const Chatting = () => {
   };
 
   const sendMessage = async () => {
-    if (currentMessage !== "") {
+    if (/^(?!\s*$).+/.test(currentMessage)) {
       const messageData = {
         room: room,
         author: username,
+        id: emailId,
         message: currentMessage,
         time: new Date().toLocaleTimeString("en-US", {
           hour: "numeric",
           minute: "numeric",
           hour12: true,
         }),
+        email: email,
       };
       await socket.emit("send_message", messageData);
+      setCurrentMessage("");
+    } else {
       setCurrentMessage("");
     }
   };
@@ -62,7 +70,7 @@ const Chatting = () => {
   console.log(messageList);
 
   return (
-    <article className={`grid grid-cols-5`}>
+    <article className={`grid grid-cols-4`}>
       <SearchFind
         setUsername={setUsername}
         room={room}
@@ -71,6 +79,8 @@ const Chatting = () => {
         setBio={setBio}
         setName={setName}
         setPhone={setPhone}
+        setEmail={setEmail}
+        setMessageList={setMessageList}
       />
       <section
         className={`bg-[#F7F8FA] flex flex-col justify-end overflow-hidden h-screen w-full col-span-3`}
@@ -82,36 +92,43 @@ const Chatting = () => {
             </p>
           ) : (
             <ScrollToBottom className=" w-full h-full overflow-hidden  ">
-              {messageList.map((ele, ind) => {
-                return (
-                  <div key={ind} className="mx-5 mt-6 flex flex-col">
-                    <div
-                      className={`min-w-[2rem] rounded-xl w-fit  px-4 py-3 ${
-                        ele.author === username
-                          ? "bg-[#E8ECEF]"
-                          : "ml-auto bg-[#72808B]"
-                      }`}
-                    >
-                      <div className="max-w-[20rem] break-words">
-                        <h2
-                          className={
-                            ele.author === username ? "" : "text-white"
-                          }
-                        >
-                          {ele.message}
-                        </h2>
+              {messageList.map(
+                (ele, ind) => {
+                  // if (ele.room == room) {
+                  return (
+                    <div key={ind} className="mx-5 mt-6 flex flex-col">
+                      <div
+                        className={`min-w-[2rem] rounded-xl w-fit  px-4 py-3 ${
+                          ele.author === username
+                            ? "bg-[#E8ECEF]"
+                            : "ml-auto bg-[#72808B]"
+                        }`}
+                      >
+                        <div className="max-w-[20rem] break-words">
+                          <h2
+                            className={
+                              ele.author === username ? "" : "text-white"
+                            }
+                          >
+                            {ele.message}
+                          </h2>
+                        </div>
                       </div>
+                      <h4
+                        className={`text-xs ${
+                          ele.author === username
+                            ? "justify-self-end"
+                            : "ml-auto"
+                        }
+                        `}
+                      >
+                        {ele.time}
+                      </h4>
                     </div>
-                    <h4
-                      className={`text-xs ${
-                        ele.author === username ? "justify-self-end" : "ml-auto"
-                      }`}
-                    >
-                      {ele.time}
-                    </h4>
-                  </div>
-                );
-              })}
+                  );
+                }
+                // }
+              )}
             </ScrollToBottom>
           )}
         </div>
@@ -127,7 +144,7 @@ const Chatting = () => {
                 placeholder="Type a message now"
                 value={currentMessage}
                 onChange={(e) => setCurrentMessage(e.target.value)}
-                onKeyUp={(event) => {
+                onKeyDown={(event) => {
                   event.key == "Enter" && sendMessage();
                 }}
               />
@@ -141,7 +158,7 @@ const Chatting = () => {
           )}
         </div>
       </section>
-      <section></section>
+      {/* <section></section> */}
     </article>
   );
 };

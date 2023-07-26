@@ -5,18 +5,6 @@ const { v4: uuidv4 } = require("uuid");
 
 //! Before
 
-const isAuth = async (req, res, next) => {
-  if (await req.session.user_id) {
-    res.status(200).json({
-      success: true,
-    });
-  } else {
-    res.status(401).json({
-      success: false,
-    });
-  }
-};
-
 const backUser = async (req, res) => {
   const { email, password } = req.body;
   if (
@@ -434,8 +422,43 @@ const sendChats = async (req, res) => {
   }
 };
 
+const convertTime24to12 = (time24h) => {
+  let time = time24h
+    .toString()
+    .match(/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time24h];
+
+  if (time.length > 1) {
+    time = time.slice(1, -1);
+    time[5] = +time[0] < 12 ? ' am' : ' pm';
+    time[0] = +time[0] % 12 || 12;
+  }
+  return time.join(''); 
+};
+
+const getHistory = async (req, res) => {
+  const id = await req.session.user_id;
+  const { email } = await req.body;
+  pool.query(quires.getIdByEmail, [email], async (err, result) => {
+    if (err) throw err;
+    const friendId = await result.rows[0].user_id;
+    pool.query(quires.getHis, [id, friendId], async (err, result) => {
+      if (err) throw err;
+      const pastMessages = [];
+      result.rows.map((ele) => {
+        pastMessages.push({
+          author: ele.author,
+          message: ele.message,
+          time: convertTime24to12(ele.time),
+          id: id,
+        });
+      });
+
+      res.json(pastMessages);
+    });
+  });
+};
+
 module.exports = {
-  isAuth,
   backUser,
   addUser,
   searchUser,
@@ -444,4 +467,5 @@ module.exports = {
   deleteRequest,
   acceptRequest,
   sendChats,
+  getHistory,
 };

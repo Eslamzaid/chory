@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 import search from "../../assets/Whatsapp (1).png";
+import options from "../../assets/options.png";
 
-function SearchFind({ setUsername, setRoom, joinRoom }) {
+function SearchFind({
+  setUsername,
+  setRoom,
+  joinRoom,
+  setEmail,
+  setMessageList,
+}) {
   const [userEmail, setUserEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [ava, setAve] = useState([]);
@@ -34,6 +41,7 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
       setAve(await data);
       setMes([data.message, true]);
       setIsLoading(false);
+      getList();
     }
   };
 
@@ -75,25 +83,31 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
       });
   };
 
-  const handleClick = async (roNum, userName) => {
+  const handleClick = async (roNum, userName, usEmail) => {
     try {
+      setUsername(await userName);
+      setRoom(await roNum);
+      setEmail(await usEmail);
       if (avaRooms.includes(roNum)) {
-        console.log("You are in this room already!");
-        setUsername(userName);
-        setRoom(roNum);
-        return;
       } else {
-        setRoom(roNum);
-        console.log("________________-__");
+        let tmp = usEmail;
+        fetch("http://localhost:4000/home/his", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ email: tmp.trim() }),
+        })
+          .then((response) => response.json())
+          .then((data) => setMessageList(data));
+
         setAvaRooms((e) => [...e, roNum]);
-        console.log(avaRooms);
-        console.log("__________________");
-        setUsername(userName);
         await joinRoom(roNum, userName);
         console.log("You joined this room: " + roNum);
       }
     } catch (error) {
-      console.error("Error in handleClick:", error);
+      console.error("Error occured:", error);
     }
   };
 
@@ -180,7 +194,6 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
               autoComplete="new-password"
               value={userEmail}
               onChange={(e) => setUserEmail(e.target.value)}
-              // name="userEmail"
               placeholder="Start new chat"
               className={`bg-[#F2F3F5] w-full px-10 border-none ring-2 ring-gray-400 focus:ring-stone-700 focus:ring-2 outline-none focus:border-none py-2 font-semibold rounded-3xl`}
               onKeyDown={(event) => event.key === "Enter" && searchUser()}
@@ -239,11 +252,15 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
                 ? ""
                 : chats.map((chat, index) => (
                     <div
-                      onClick={() => handleClick(chat.room, chat.name)}
                       key={index}
-                      className="p-4 hover:cursor-pointer  rounded-2xl bg-slate-100 w-full  my-3"
+                      className="p- hover:cursor-pointer flex justify-between rounded-2xl bg-slate-100 w-full  my-3"
                     >
-                      <div className="flex  items-center">
+                      <div
+                        onClick={() =>
+                          handleClick(chat.room, chat.name, chat.email)
+                        }
+                        className="rounded-2xl w-full p-4 flex items-center"
+                      >
                         <p className="bg-blue-300 flex justify-center items-center h-10 w-10 mr-3  rounded-full">
                           {chat.name.slice(0, 1).toUpperCase() +
                             chat.name[chat.name.length - 1].toUpperCase()}
@@ -256,6 +273,11 @@ function SearchFind({ setUsername, setRoom, joinRoom }) {
                           <p className="text-xs text-slate-500">{chat.bio}</p>
                         </div>
                       </div>
+                      <img
+                        src={options}
+                        alt="options"
+                        className="object-contain w-5 relative bottom-2 bg-red-400"
+                      />
                     </div>
                   ))}
             </div>

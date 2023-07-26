@@ -42,6 +42,10 @@ const getAllByIds2 =
   "SELECT * FROM friends WHERE user_id = $1 OR friendl_id = $1";
 const getIdRoom =
   "SELECT roomn FROM connections WHERE user_id = $1 AND freind_id = $2";
+const addHis =
+  "INSERT INTO history (user_id, date, time, message, author, to_user) VALUES ($1, $2, $3, $4, $5, $6)";
+const getHis =
+  "SELECT * FROM history WHERE (user_id = $1 AND to_user = $2) OR (user_id = $2 AND to_user = $1)";
 
 module.exports = {
   AddUser,
@@ -71,4 +75,6 @@ module.exports = {
   getAllByIds,
   getAllByIds2,
   getIdRoom,
+  addHis,
+  getHis,
 };

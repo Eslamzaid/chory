@@ -7,6 +7,8 @@ const http = require("http");
 const { Server } = require("socket.io");
 const { firCon, secCon } = require("./routes/routes");
 require("dotenv").config();
+const pool = require("./database");
+const { getAllById, addHis, getIdByEmail } = require("./queires/queires");
 
 app.use(express.json());
 app.use(
@@ -30,7 +32,20 @@ app.use(
 
 app.get("/", async (req, res) => {
   if (await req.session.user_id) {
-    res.json({ message: "Welcome", success: true });
+    pool.query(getAllById, [await req.session.user_id], async (err, result) => {
+      if (!err) {
+        const email = await result.rows[0].email;
+        res.status(200).json({
+          message: "Welcome",
+          success: true,
+          email: await email,
+          id: await req.session.user_id,
+        });
+        return;
+      } else {
+        throw err;
+      }
+    });
   } else {
     res.json({ message: "Unauthenticated", success: false });
   }
@@ -47,39 +62,46 @@ const io = new Server(server, {
   },
 });
 
-const userSockets = {}
-
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
   socket.on("join_room", (data) => {
     socket.join(data);
-    console.log(`User with id: ${socket.id} joined room: ${data.room}`);
-
-    const userId = data.userId;
-    if (!userSockets[userId]) {
-      userSockets[userId] = [];
-    }
-    userSockets[userId].push(socket.id);
+    console.log(`User with id: ${socket.id} joined room: ${data}`);
   });
 
-  socket.on("send_message", (data) => {
-    const userId = data.userId;
-    if (userSockets[userId].includes(socket.id)) {
-      return;
-    }
-    socket.to(data.room).emit("receive_message", data);
-    userSockets[userId].push(socket.id);
+  socket.on("send_message", async (data) => {
+    const date = new Date();
+    let currentDay = String(date.getDate()).padStart(2, "0");
+    let currentMonth = String(date.getMonth() + 1).padStart(2, "0");
+    let currentYear = date.getFullYear();
+
+    pool.query(getIdByEmail, [await data.email], async (err, result) => {
+      if (!err) {
+        const id = await result.rows[0].user_id;
+        pool.query(
+          addHis,
+          [
+            data.id,
+            `${currentDay}-${currentMonth}-${currentYear}`,
+            data.time,
+            data.message,
+            data.author,
+            id,
+          ],
+          (err, result) => {
+            if (err) throw err;
+          }
+        );
+      } else {
+        throw err;
+      }
+    });
+    socket.to(await data.room).emit("receive_message", data);
   });
 
   socket.on("disconnect", () => {
     console.log("User is gone", socket.id);
-    for (const userId in userSockets) {
-      const index = userSockets[userId].indexOf(socket.id);
-      if (index !== -1) {
-        userSockets[userId].splice(index, 1);
-      }
-    }
   });
 });
 

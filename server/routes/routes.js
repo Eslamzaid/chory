@@ -14,5 +14,6 @@ secCon.post("/addUser", controller.requestUser);
 secCon.post("/acceptUser", controller.acceptRequest);
 secCon.post("/chats", controller.sendChats)
 secCon.delete("/rejReq/:email", controller.deleteRequest);
+secCon.post("/his", controller.getHistory)
 
 module.exports = { firCon, secCon };
