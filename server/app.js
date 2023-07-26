@@ -78,6 +78,7 @@ io.on("connection", (socket) => {
 
     pool.query(getIdByEmail, [await data.email], async (err, result) => {
       if (!err) {
+        if (result.rowCount == 0) return;
         const id = await result.rows[0].user_id;
         pool.query(
           addHis,

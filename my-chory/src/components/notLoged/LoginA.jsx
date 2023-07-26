@@ -65,15 +65,9 @@ function LoginA() {
           <section className=" flex justify-center mt-24">
             <div>
               <h2 className=" text-5xl font-semibold">Welcome Back</h2>
-              <h4 className="text-center my-5 text-2xl">
+              <h4 className="mb-8 text-center my-5 text-2xl">
                 Login into your account
               </h4>
-              <div>psspowrt</div>
-              <div className="border-b border-slate-300 text-center">
-                <span className=" relative top-3 bg-[#F0F2F5] p-3">
-                  or continue with
-                </span>
-              </div>
             </div>
           </section>
           <section className=" flex justify-center">

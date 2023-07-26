@@ -429,10 +429,10 @@ const convertTime24to12 = (time24h) => {
 
   if (time.length > 1) {
     time = time.slice(1, -1);
-    time[5] = +time[0] < 12 ? ' am' : ' pm';
+    time[5] = +time[0] < 12 ? " am" : " pm";
     time[0] = +time[0] % 12 || 12;
   }
-  return time.join(''); 
+  return time.join("");
 };
 
 const getHistory = async (req, res) => {
@@ -443,17 +443,21 @@ const getHistory = async (req, res) => {
     const friendId = await result.rows[0].user_id;
     pool.query(quires.getHis, [id, friendId], async (err, result) => {
       if (err) throw err;
-      const pastMessages = [];
-      result.rows.map((ele) => {
-        pastMessages.push({
-          author: ele.author,
-          message: ele.message,
-          time: convertTime24to12(ele.time),
-          id: id,
+      pool.query(quires.getIdRoomBoth, [id, friendId], async (err, result2) => {
+        if (err) throw err;
+        const room = await result2.rows[0].roomn;
+        const pastMessages = [];
+        result.rows.map((ele) => {
+          pastMessages.push({
+            author: ele.author,
+            message: ele.message,
+            time: convertTime24to12(ele.time),
+            id: id,
+            room: room,
+          });
         });
+        res.json(pastMessages);
       });
-
-      res.json(pastMessages);
     });
   });
 };

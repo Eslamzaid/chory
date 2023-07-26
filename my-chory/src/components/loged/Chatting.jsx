@@ -92,9 +92,8 @@ const Chatting = () => {
             </p>
           ) : (
             <ScrollToBottom className=" w-full h-full overflow-hidden  ">
-              {messageList.map(
-                (ele, ind) => {
-                  // if (ele.room == room) {
+              {messageList.map((ele, ind) => {
+                if (ele.room == room) {
                   return (
                     <div key={ind} className="mx-5 mt-6 flex flex-col">
                       <div
@@ -127,8 +126,7 @@ const Chatting = () => {
                     </div>
                   );
                 }
-                // }
-              )}
+              })}
             </ScrollToBottom>
           )}
         </div>

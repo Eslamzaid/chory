@@ -89,8 +89,9 @@ function SearchFind({
       setRoom(await roNum);
       setEmail(await usEmail);
       if (avaRooms.includes(roNum)) {
-      } else {
         let tmp = usEmail;
+        let h = [];
+        h.push(tmp);
         fetch("http://localhost:4000/home/his", {
           method: "POST",
           headers: {
@@ -100,8 +101,39 @@ function SearchFind({
           body: JSON.stringify({ email: tmp.trim() }),
         })
           .then((response) => response.json())
-          .then((data) => setMessageList(data));
-
+          .then((data) => {
+            if (data.length == 0) {
+              setMessageList([]);
+            } else if (h[0] == tmp) {
+              setMessageList(data);
+            } else {
+              h = [];
+              setMessageList([]);
+            }
+          });
+      } else {
+        let tmp = usEmail;
+        let h = [];
+        h.push(tmp);
+        fetch("http://localhost:4000/home/his", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ email: tmp.trim() }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.length == 0) {
+              setMessageList([]);
+            } else if (h[0] == tmp) {
+              setMessageList(data);
+            } else {
+              h = [];
+              setMessageList([]);
+            }
+          });
         setAvaRooms((e) => [...e, roNum]);
         await joinRoom(roNum, userName);
         console.log("You joined this room: " + roNum);
