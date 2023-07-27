@@ -28,9 +28,6 @@ const Chatting = () => {
   const [room, setRoom] = useState("");
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
-  const [bio, setBio] = useState("");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [info, setInfo] = useState([]);
   const [show, setShow] = useState([]);
@@ -71,18 +68,28 @@ const Chatting = () => {
     });
   }, [socket]);
 
+  const delChat = (email) => {
+    fetch("http://localhost:4000/home/delChat", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ email }),
+    }).then(() => {
+      console.log("User deleted successfully");
+      setBio(1);
+    });
+  };
+
   return (
     <article
       className={` transition-all grid ${fin ? "grid-cols-5" : "grid-cols-4"} `}
     >
       <SearchFind
         setUsername={setUsername}
-        room={room}
         setRoom={setRoom}
         joinRoom={joinRoom}
-        setBio={setBio}
-        setName={setName}
-        setPhone={setPhone}
         setEmail={setEmail}
         setMessageList={setMessageList}
         setInfo={setInfo}
@@ -99,7 +106,7 @@ const Chatting = () => {
               Select a chat to start chatting
             </p>
           ) : (
-            <ScrollToBottom className=" w-full h-full overflow-hidden  ">
+            <ScrollToBottom className="w-full h-full overflow-hidden">
               {messageList.map((ele, ind) => {
                 if (ele.room == room) {
                   return (
@@ -167,8 +174,8 @@ const Chatting = () => {
       {show.length == 0 ? (
         ""
       ) : fin == true ? (
-        <section className="m-7">
-          <div className="flex font-medium font-snsn ">
+        <section className="shadow-2xl">
+          <div className="flex font-medium font-snsn  m-5 xl:m-7">
             <img
               src={close}
               className="w-4 mr-4 cursor-pointer object-contain opacity-80"
@@ -177,9 +184,9 @@ const Chatting = () => {
             />
             <p>Contact info</p>
           </div>
-          <div className="flex flex-col justify-center items-center mt-10">
-            <div className="bg-[#370866] flex justify-center items-center rounded-full w-48 h-48 ">
-              <h2 className="rounded-full  font-bold text-8xl text-white">
+          <div className="flex flex-col justify-center items-center mt-10 m-5 xl:m-7">
+            <div className="bg-[#370866] flex justify-center items-center rounded-full w-36 h-36 xl:w-48 xl:h-48 ">
+              <h2 className="rounded-full  font-bold text-5xl xl:text-8xl text-white">
                 {info.name.slice(0, 1).toUpperCase() +
                   info.name[info.name.length - 1].toUpperCase()}
               </h2>
@@ -188,16 +195,23 @@ const Chatting = () => {
               {info.name}
             </h3>
           </div>
-          <div className="mt-20 text-center">
+          <div className="xl:mt-20 mt-20 text-center m-5 xl:m-7">
             <h4 className="font-bold">About</h4>
-            <h5 className="opacity-90 text-slate-600 mt-3 mb-2">
+            <h5 className="opacity-90 xl:text-base text-sm text-slate-600 mt-3 mb-2">
               Eamil: {info.email}
             </h5>
-            <h5 className="opacity-90 text-slate-600 my-2">Bio: {info.bio}</h5>
-            <h5 className="opacity-90 text-slate-600">Phone: {info.phone}</h5>
+            <h5 className="opacity-90 xl:text-base text-sm text-slate-600 my-2">
+              Bio: {info.bio}
+            </h5>
+            <h5 className="opacity-90 xl:text-base text-sm text-slate-600">
+              Phone: {info.phone}
+            </h5>
           </div>
-          <div className="mt-48 flex justify-center">
-            <button class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+          <div className="xl:mt-48 mt-48 flex justify-center m-5 xl:m-7">
+            <button
+              onClick={() => delChat(info.email)}
+              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+            >
               Delete contact
             </button>
           </div>

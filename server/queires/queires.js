@@ -42,11 +42,18 @@ const getAllByIds2 =
   "SELECT * FROM friends WHERE user_id = $1 OR friendl_id = $1";
 const getIdRoom =
   "SELECT roomn FROM connections WHERE user_id = $1 AND freind_id = $2";
-const getIdRoomBoth = "SELECT roomn FROM connections WHERE (user_id = $1 AND freind_id = $2) OR (user_id = $2 AND freind_id = $1)"
+const getIdRoomBoth =
+  "SELECT roomn FROM connections WHERE (user_id = $1 AND freind_id = $2) OR (user_id = $2 AND freind_id = $1)";
 const addHis =
   "INSERT INTO history (user_id, date, time, message, author, to_user) VALUES ($1, $2, $3, $4, $5, $6)";
 const getHis =
   "SELECT * FROM history WHERE (user_id = $1 AND to_user = $2) OR (user_id = $2 AND to_user = $1)";
+const delFromFri =
+  "DELETE FROM friends WHERE (user_id = $1 AND friendl_id = $2) OR (user_id = $2 AND friendl_id = $1)";
+const delFromCon =
+  "DELETE FROM connections WHERE (user_id = $1 AND freind_id = $2) OR (user_id = $2 AND freind_id = $1)";
+const delFromHis =
+  "DELETE FROM history WHERE (user_id = $1 AND to_user = $2) OR (user_id = $2 AND to_user = $1)";
 
 module.exports = {
   AddUser,
@@ -79,4 +86,7 @@ module.exports = {
   addHis,
   getHis,
   getIdRoomBoth,
+  delFromFri,
+  delFromCon,
+  delFromHis,
 };

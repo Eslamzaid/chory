@@ -159,7 +159,6 @@ function SearchFind({
         };
         setInfo(da);
         if (show.length == 0) {
-          console.log("HIO");
           setShow(da);
           setFin(true);
           temp = chats[i].email;
@@ -243,8 +242,8 @@ function SearchFind({
   };
 
   return (
-    <section className="m-6 transition-all font-sans ">
-      <div className={isLoading ? "animate-pulse" : ""}>
+    <section className="transition-all font-sans ">
+      <div className={isLoading ? "animate-pulse m-6" : "m-6"}>
         <div className="flex justify-start items-center z-20">
           <img
             src={search}
@@ -301,7 +300,7 @@ function SearchFind({
               ))}
         </div>
       </div>
-      <div className="mt-40">
+      <div className="mt-40 xl:mt-40 m-2 xl:m-6">
         <h2 className="text-2xl font-semibold">All chats</h2>
 
         {dataa.length === 0 && chats.length === 0 ? (
@@ -322,7 +321,7 @@ function SearchFind({
                         onClick={() =>
                           handleClick(chat.room, chat.name, chat.email)
                         }
-                        className="rounded-2xl w-full p-4 flex items-center"
+                        className="rounded-2xl w-full p-2 xl:p-4 flex items-center"
                       >
                         <p className="bg-blue-300 flex justify-center items-center h-10 w-10 mr-3  rounded-full">
                           {chat.name.slice(0, 1).toUpperCase() +
@@ -330,7 +329,7 @@ function SearchFind({
                         </p>
                         <div className="text-ellipsis truncate">
                           <p className="capitalize">{chat.name}</p>
-                          <p className="text-xs text-slate-500">{chat.bio}</p>
+                          <p className="text-xs text-slate-500  hidden lg:block">{chat.bio}</p>
                         </div>
                       </div>
                       <img
@@ -339,7 +338,7 @@ function SearchFind({
                         }}
                         src={options}
                         alt="options"
-                        className=" object-contain w-5 relative bottom-1 right-4 m-1"
+                        className=" object-contain w-5 relative right-4 m-1"
                       />
                     </div>
                   ))}
