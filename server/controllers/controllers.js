@@ -468,12 +468,9 @@ const deleteChat = async (req, res) => {
   const id = await req.session.user_id;
   const { email } = await req.body;
 
-  //TODO first get the id from the email above then delete first from the firends then the connection then te history and don't forget to call the functions in frontend to act as they got refreshed
   pool.query(quires.getIdByEmail, [email], async (err, result) => {
     if (err) throw err;
     const friendId = await result.rows[0].user_id;
-    console.log("the friend id: ", friendId);
-    console.log("My id: "+ id)
     pool.query(quires.delFromFri, [id, friendId], (err) => {
       if (err) throw err;
     });
@@ -483,6 +480,8 @@ const deleteChat = async (req, res) => {
     pool.query(quires.delFromHis, [id, friendId], (err) => {
       if (err) throw err;
     });
+    res.json({ message: "User deleted successfully!" });
+    return;
   });
 };
 

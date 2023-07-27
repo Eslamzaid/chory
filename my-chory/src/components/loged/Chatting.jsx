@@ -68,18 +68,22 @@ const Chatting = () => {
     });
   }, [socket]);
 
-  const delChat = (email) => {
-    fetch("http://localhost:4000/home/delChat", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ email }),
-    }).then(() => {
-      console.log("User deleted successfully");
-      setBio(1);
-    });
+  const delChat = async (email) => {
+    try {
+      await fetch("http://localhost:4000/home/delChat", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ email }),
+      });
+
+      console.log("Deleted");
+      location.reload();
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
   };
 
   return (
